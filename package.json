@@ -1,0 +1,19 @@
+{
+  "name": "phishquest",
+  "version": "1.0.0",
+  "description": "Tactical Cybersecurity Training Application - Phishing Awareness Training",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": [
+    "cybersecurity",
+    "phishing",
+    "training",
+    "education",
+    "security-awareness"
+  ],
+  "author": "Thesis Project",
+  "license": "MIT"
+}

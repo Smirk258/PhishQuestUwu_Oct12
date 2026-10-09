@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishQuest — Tactical Cybersecurity Training</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- LOGIN SCREEN -->
+  <div class="screen auth-screen active" id="login-screen">
+    <div class="auth-split-layout">
+      <!-- Left Branding Section -->
+      <div class="auth-branding">
+        <h1 class="auth-branding-heading">
+          Spot it<br>
+          before it<br>
+          <span class="highlight">spots you.</span>
+        </h1>
+        <p class="auth-branding-description">
+          Every login attempt, every link, every sender — treat
+          it like a scenario. PhishQuest drops you into real
+          inbox traps so the real ones don't fool you.
+        </p>
+      </div>
+
+      <!-- Right Login Section -->
+      <div class="auth-form-section">
+        <div class="auth-form-container">
+          <div class="auth-brand-row">
+            <div class="auth-shield">🛡️</div>
+            <div class="auth-brand-title">PHISHQUEST</div>
+          </div>
+          <p class="auth-tagline">Field training for spotting phishing before it spots you.</p>
+
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">Login</button>
+            <button class="auth-tab" data-tab="register">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <div class="auth-form active" id="login-form">
+            <div class="auth-eyebrow">PARTICIPANT ACCESS</div>
+            <div class="auth-field-label">Student ID</div>
+            <div class="auth-input-row">
+              <span class="icon">🆔</span>
+              <input type="text" id="login-username" placeholder="e.g. 02000123456">
+            </div>
+            <p class="auth-helper-text">Use the ID on your school portal — no personal email needed.</p>
+            <div class="auth-field-label">Password</div>
+            <div class="auth-input-row">
+              <span class="icon">🔒</span>
+              <input type="password" id="login-password" placeholder="Enter your password">
+            </div>
+            <button class="auth-btn auth-btn-primary" onclick="handleLogin()">Begin training →</button>
+            <p class="auth-error-message" id="login-error"></p>
+            <p class="auth-footer-text">Access is limited to enrolled participants.</p>
+          </div>
+
+          <!-- Register Form -->
+          <div class="auth-form" id="register-form">
+            <div class="auth-eyebrow">NEW AGENT REGISTRATION</div>
+            <div class="auth-field-label">First name</div>
+            <div class="auth-input-row">
+              <span class="icon">👤</span>
+              <input type="text" id="register-firstname" placeholder="First name">
+            </div>
+            <div class="auth-field-label">Last name</div>
+            <div class="auth-input-row">
+              <span class="icon">👤</span>
+              <input type="text" id="register-lastname" placeholder="Last name">
+            </div>
+            <div class="auth-field-label">Student ID</div>
+            <div class="auth-input-row">
+              <span class="icon">🆔</span>
+              <input type="text" id="register-username" placeholder="e.g. 02000123456">
+            </div>
+            <div class="auth-field-label">Email</div>
+            <div class="auth-input-row">
+              <span class="icon">📧</span>
+              <input type="email" id="register-email" placeholder="Enter your email">
+            </div>
+            <div class="auth-field-label">Password</div>
+            <div class="auth-input-row">
+              <span class="icon">🔒</span>
+              <input type="password" id="register-password" placeholder="Create a password">
+            </div>
+            <div class="auth-field-label">Confirm password</div>
+            <div class="auth-input-row">
+              <span class="icon">🔒</span>
+              <input type="password" id="register-confirm" placeholder="Confirm your password">
+            </div>
+            <button class="auth-btn auth-btn-primary" onclick="handleRegister()">Create account →</button>
+            <p class="auth-error-message" id="register-error"></p>
+            <p class="auth-footer-text">Access is limited to enrolled participants.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRE-ASSESSMENT -->
+  <div class="screen" id="pre-assessment-screen">
+    <div class="assessment-container">
+      <div class="assessment-header">
+        <div class="assessment-title" id="pre-assessment-label">PRE-ASSESSMENT - QUESTION 1/5</div>
+        <div class="progress-bar" id="pre-assessment-progress"></div>
+      </div>
+      <div class="assessment-content">
+        <div class="assessment-left">
+          <div class="intel-header">
+            <div class="intel-tag">
+              <span class="red-dot"></span>
+              SCENARIO INTEL
+            </div>
+            <div class="intel-icon">🎧</div>
+          </div>
+          <div class="intel-text" id="pre-assessment-scenario"></div>
+          <div class="intel-hint">Read carefully - every detail counts.</div>
+          <div class="intel-footer">
+            <span class="checkbox-icon">☑</span>
+            <span>Correct answers yield access to senior missions.</span>
+          </div>
+        </div>
+        <div class="assessment-right">
+          <h3 class="assessment-question" id="pre-assessment-question"></h3>
+          <div class="options-container" id="pre-assessment-options"></div>
+          <button class="btn btn-violet assessment-next-btn" onclick="nextPreAssessment()">Next question →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION HUB -->
+  <div class="screen" id="mission-hub-screen">
+    <div class="hub-layout">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="side-brand">
+          <div class="side-shield">🛡️</div>
+          <div class="side-title">PHISHQUEST</div>
+        </div>
+        <div class="side-tag">Tactical cybersecurity awareness training portal.</div>
+        <nav class="side-nav">
+          <div class="nav-item active" onclick="showScreen('mission-hub')">
+            <span class="nav-icon">🧭</span> Missions
+          </div>
+          <div class="nav-item" onclick="showScreen('results-screen')">
+            <span class="nav-icon">🏅</span> Results
+          </div>
+          <div class="nav-item" onclick="handleLogout()">
+            <span class="nav-icon">🚪</span> Logout
+          </div>
+        </nav>
+        <!-- Phish Tip panel -->
+        <div class="phish-tip-panel">
+          <div class="phish-tip-label">⚡ PHISH TIP</div>
+          <p class="phish-tip-text" id="phish-tip-text">Check the sender's domain, not just the display name. One swapped letter is all it takes.</p>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="hub-main">
+
+        <!-- TOP BAR -->
+        <div class="hub-topbar">
+          <div class="hub-topbar-left">
+            <div class="hub-eyebrow">MISSION HUB</div>
+            <h2 class="hub-title">Choose your next mission</h2>
+            <div class="hub-sub">4 missions · 5 scenarios each</div>
+          </div>
+          <button class="agent-badge-btn" onclick="showRankPopup()" title="View your rank">
+            <div class="agent-badge-avatar">🛡️</div>
+            <div class="agent-badge-info">
+              <div class="agent-badge-name" id="agent-name">Agent #29402</div>
+              <div class="agent-badge-rank" id="agent-rank">NOVICE HUNTER</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- STATS STRIP -->
+        <div class="stat-strip">
+          <div class="stat-card">
+            <div class="stat-card-icon stat-icon-score">🏆</div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="current-score">0 <span class="stat-max">/200</span></div>
+              <div class="stat-card-label">CURRENT SCORE</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon stat-icon-scenarios">🎯</div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="scenarios-completed">0 <span class="stat-max">/20</span></div>
+              <div class="stat-card-label">SCENARIOS</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon stat-icon-missions">▶</div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="missions-cleared">0 <span class="stat-max">/4</span></div>
+              <div class="stat-card-label">MISSIONS CLEARED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPLETION PROGRESS BAR -->
+        <div class="completion-bar-wrap">
+          <div class="completion-bar-header">
+            <span class="completion-bar-label">COMPLETION PROGRESS</span>
+            <span class="completion-bar-pct" id="completion-percent">0% (0/20)</span>
+          </div>
+          <div class="completion-bar-track" id="completion-bar"></div>
+        </div>
+
+        <!-- YOUR MISSIONS header -->
+        <div class="missions-section-header">
+          <span class="missions-section-title">YOUR MISSIONS</span>
+          <span class="missions-section-hint">Clear each mission to unlock the next one.</span>
+        </div>
+
+        <!-- MISSION GRID -->
+        <div class="mission-grid">
+
+          <!-- Mission 1 -->
+          <div class="mission-card" id="mission-1">
+            <div class="mission-card-top">
+              <div class="mission-card-icon">📧</div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 01</span>
+                <span class="sticker sticker-locked" id="mission-1-status">🔒 Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Email Detective</h3>
+            <p class="mission-card-desc">Spot the red flags in a suspicious inbox.</p>
+            <div class="mission-scenario-dots" id="mission-1-dots"></div>
+            <div class="mission-scenario-text" id="mission-1-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-1-btn" disabled onclick="startMission(1)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-1-overlay">Access denied</div>
+            <div class="mission-bg-num">01</div>
+          </div>
+
+          <!-- Mission 2 -->
+          <div class="mission-card" id="mission-2">
+            <div class="mission-card-top">
+              <div class="mission-card-icon">🔗</div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 02</span>
+                <span class="sticker sticker-locked" id="mission-2-status">🔒 Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Link Hunter</h3>
+            <p class="mission-card-desc">Tell real domains from fakes.</p>
+            <div class="mission-scenario-dots" id="mission-2-dots"></div>
+            <div class="mission-scenario-text" id="mission-2-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-2-btn" disabled onclick="startMission(2)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-2-overlay">Access denied</div>
+            <div class="mission-bg-num">02</div>
+          </div>
+
+          <!-- Mission 3 -->
+          <div class="mission-card" id="mission-3">
+            <div class="mission-card-top">
+              <div class="mission-card-icon">🌐</div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 03</span>
+                <span class="sticker sticker-locked" id="mission-3-status">🔒 Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Fake Website</h3>
+            <p class="mission-card-desc">Inspect a cloned login page.</p>
+            <div class="mission-scenario-dots" id="mission-3-dots"></div>
+            <div class="mission-scenario-text" id="mission-3-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-3-btn" disabled onclick="startMission(3)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-3-overlay">Access denied</div>
+            <div class="mission-bg-num">03</div>
+          </div>
+
+          <!-- Mission 4 -->
+          <div class="mission-card" id="mission-4">
+            <div class="mission-card-top">
+              <div class="mission-card-icon">💬</div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 04</span>
+                <span class="sticker sticker-locked" id="mission-4-status">🔒 Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Social Engineering</h3>
+            <p class="mission-card-desc">Catch impersonation in a live chat.</p>
+            <div class="mission-scenario-dots" id="mission-4-dots"></div>
+            <div class="mission-scenario-text" id="mission-4-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-4-btn" disabled onclick="startMission(4)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-4-overlay">Access denied</div>
+            <div class="mission-bg-num">04</div>
+          </div>
+
+        </div><!-- /.mission-grid -->
+
+        <!-- NEXT UP / ALL CLEARED banner -->
+        <div class="next-up-banner" id="next-up-banner">
+          <div class="next-up-inner">
+            <div class="next-up-label" id="next-up-label">UP NEXT</div>
+            <div class="next-up-title" id="next-up-title">Launch Email Detective</div>
+            <div class="next-up-sub" id="next-up-sub">Clear it to unlock Mission 02.</div>
+          </div>
+          <button class="btn btn-violet" id="hub-post-assessment-btn" style="display:none;" onclick="startPostAssessment()">Take Post-Assessment</button>
+        </div>
+
+      </div><!-- /.hub-main -->
+    </div><!-- /.hub-layout -->
+  </div>
+
+  <!-- RANK POPUP -->
+  <div class="rank-popup" id="rank-popup" style="display:none;">
+    <div class="rank-popup-content">
+      <button class="rank-close-btn" onclick="hideRankPopup()">✕</button>
+
+      <!-- Current rank header -->
+      <div class="rank-popup-hero">
+        <div class="rank-popup-hero-label">YOUR RANK</div>
+        <div class="rank-popup-hero-icon" id="rank-hero-icon">🏆</div>
+        <div class="rank-popup-hero-title" id="rank-current-title">NOVICE HUNTER</div>
+        <div class="rank-popup-hero-sub">Nothing phishes past you.<br><span id="rank-hero-agent">Agent #29402</span></div>
+      </div>
+
+      <!-- Progress bar row -->
+      <div class="rank-popup-progress-row">
+        <span class="rank-popup-progress-label" id="rank-points-remaining">Top rank reached — nothing phishes past you.</span>
+        <span class="rank-popup-progress-score" id="rank-current-score">0/200</span>
+      </div>
+      <div class="rank-progress-bar">
+        <div class="rank-progress-fill" id="rank-progress-fill" style="width:0%;"></div>
+      </div>
+
+      <!-- Rank ladder -->
+      <div class="rank-ladder">
+        <div class="rank-ladder-header">RANK LADDER</div>
+
+        <div class="rank-item" data-rank="NOVICE HUNTER">
+          <div class="rank-item-icon">🎯</div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">NOVICE HUNTER</div>
+            <div class="rank-item-range">0–49 pts · Learning the ropes.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="JUNIOR AGENT">
+          <div class="rank-item-icon">🔍</div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">JUNIOR AGENT</div>
+            <div class="rank-item-range">50–89 pts · Spotting the obvious traps.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="SKILLED OPERATIVE">
+          <div class="rank-item-icon">🎖️</div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">SKILLED OPERATIVE</div>
+            <div class="rank-item-range">90–129 pts · Reading between the lines.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="SENIOR AGENT">
+          <div class="rank-item-icon">⭐</div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">SENIOR AGENT</div>
+            <div class="rank-item-range">130–169 pts · Catching what others miss.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="MASTER HUNTER">
+          <div class="rank-item-icon">👑</div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">MASTER HUNTER</div>
+            <div class="rank-item-range">170–200 pts · Nothing phishes past you.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+      </div><!-- /.rank-ladder -->
+    </div><!-- /.rank-popup-content -->
+  </div>
+
+  <!-- MISSION GAMEPLAY SCREEN -->
+  <div class="screen" id="mission-gameplay-screen">
+    <div class="mission-layout">
+      <div class="sidebar">
+        <div class="side-brand">
+          <div class="side-shield">🛡️</div>
+          <div class="side-title">PHISHQUEST</div>
+        </div>
+        <div class="side-tag">Tactical cybersecurity awareness training portal.</div>
+        <div class="nav-item active" onclick="showScreen('mission-hub')">🧭 Missions</div>
+        <div class="nav-item" onclick="showScreen('results-screen')">🏅 Results</div>
+        <div class="nav-item" onclick="handleLogout()">🚪 Logout</div>
+        <!-- agent name/rank hidden in gameplay sidebar -->
+        <span id="gameplay-agent-name" style="display:none;"></span>
+        <span id="gameplay-agent-rank" style="display:none;"></span>
+      </div>
+      <div class="mission-main">
+        <div class="tactical-head">
+          <div>
+            <div class="m-label" id="mission-label">MISSION 01 · EMAIL DETECTIVE</div>
+            <div class="m-sub" id="scenario-label">Scenario 1/5</div>
+          </div>
+          <div class="signal">
+            <i style="height:8px;"></i>
+            <i style="height:12px;"></i>
+            <i style="height:16px;"></i>
+          </div>
+        </div>
+        <div class="instruction-row">
+          <p id="mission-instruction">Tap anything in this email that looks suspicious.</p>
+          <span class="found-badge" id="indicators-found">SELECTED: 0</span>
+        </div>
+        <div id="mission-content"></div>
+        <div class="hint-row">
+          <button class="btn btn-violet" style="margin-right:auto;" onclick="showHint()">💡 Hint</button>
+          <p id="mission-hint" style="display:none; color:#C9BEEA;"></p>
+          <button class="btn btn-coral" onclick="submitMissionFindings()">Submit findings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMMEDIATE FEEDBACK -->
+  <div class="screen" id="feedback-screen">
+    <div class="card center-card">
+      <div class="result-head">
+        <div class="eyebrow">SCENARIO RESULT</div>
+        <div class="points" id="feedback-points">+20 points</div>
+        <div class="muted" id="feedback-summary">2 of 3 indicators found.</div>
+      </div>
+      <hr class="sep">
+      <div id="feedback-items"></div>
+      <div class="foot-row">
+        <span class="muted">Score added to Mission progress.</span>
+        <div>
+          <button class="btn btn-outline" onclick="showScreen('mission-hub')" style="margin-right: 10px;">Return to hub</button>
+          <button class="btn btn-violet" id="feedback-next-btn" onclick="nextScenario()">Next scenario →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION DEBRIEF -->
+  <div class="screen" id="mission-debrief-screen">
+    <div class="card center-card">
+      <div class="result-head">
+        <div class="eyebrow">MISSION COMPLETE</div>
+        <h2 style="font-size:26px; margin:6px 0;" id="debrief-title">Email Detective cleared 🎉</h2>
+        <div class="muted" id="debrief-summary">5 of 5 scenarios complete.</div>
+      </div>
+      <hr class="sep">
+      <div class="stat-pair">
+        <div class="stat-box">
+          <b id="debrief-points">180</b>
+          <span>POINTS EARNED</span>
+        </div>
+        <div class="stat-box">
+          <b id="debrief-flags">13/15</b>
+          <span>FLAGS FOUND</span>
+        </div>
+      </div>
+      <p class="muted" style="text-align:center;">Missions can be replayed anytime to maximize points.</p>
+      <div class="debrief-buttons" style="text-align:center; margin-top:14px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+        <button class="btn btn-primary" style="width:100%; max-width:300px; padding:14px 26px;" onclick="showScreen('mission-hub')">Return to mission hub</button>
+        <button class="btn btn-violet" id="post-assessment-btn" style="width:100%; max-width:300px; padding:14px 26px; display:none;" onclick="startPostAssessment()">Take Post-Assessment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-ASSESSMENT -->
+  <div class="screen" id="post-assessment-screen">
+    <div class="assessment-container">
+      <div class="assessment-header">
+        <div class="assessment-title" id="post-assessment-label">POST-ASSESSMENT - QUESTION 1/5</div>
+        <div class="progress-bar" id="post-assessment-progress"></div>
+      </div>
+      <div class="assessment-content">
+        <div class="assessment-left">
+          <div class="intel-header">
+            <div class="intel-tag">
+              <span class="red-dot"></span>
+              SITUATION BRIEF
+            </div>
+            <div class="intel-icon">🎧</div>
+          </div>
+          <div class="intel-text" id="post-assessment-scenario"></div>
+          <div class="intel-hint">Read carefully - every detail counts.</div>
+          <div class="intel-footer">
+            <span class="checkbox-icon">☑</span>
+            <span>Correct answers yield access to senior missions.</span>
+          </div>
+        </div>
+        <div class="assessment-right">
+          <h3 class="assessment-question" id="post-assessment-question"></h3>
+          <div class="options-container" id="post-assessment-options"></div>
+          <button class="btn btn-violet assessment-next-btn" onclick="nextPostAssessment()">Next question →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="results-screen">
+    <div class="card" style="max-width:840px; margin:0 auto; padding:36px;">
+      <div class="result-head">
+        <div class="eyebrow">TRAINING COMPLETE</div>
+        <h2 style="font-size:26px; margin:6px 0;" id="results-title">Your awareness went up 20 points 📈</h2>
+      </div>
+      <div class="eyebrow" style="margin-top:20px;">ASSESSMENT GAINS</div>
+      <div class="gain-row" style="margin-top:14px;">
+        <div class="toprow">
+          <span>Pre-Assessment Score</span>
+          <span id="pre-score-display">60%</span>
+        </div>
+        <div class="gain-track">
+          <div class="gain-fill" id="pre-score-bar" style="width:60%;"></div>
+        </div>
+      </div>
+      <div class="gain-row">
+        <div class="toprow">
+          <span>Post-Assessment Score</span>
+          <span id="post-score-display">80%</span>
+        </div>
+        <div class="gain-track">
+          <div class="gain-fill post" id="post-score-bar" style="width:80%;"></div>
+        </div>
+      </div>
+      <div class="foot-row">
+        <span class="muted">Report generated on tactical school activity metrics.</span>
+        <div>
+          <button class="btn btn-violet" onclick="showScreen('mission-hub')" style="margin-right: 10px;">Return to mission hub</button>
+          <button class="btn btn-yellow" onclick="downloadReport()">Download report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
