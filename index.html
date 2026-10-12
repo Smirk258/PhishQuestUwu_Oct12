@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cpath%20d%3D%22M3.08%2026.99A24%2024%200%201%200%2023.22%205.30A17.5%2017.5%200%201%201%203.08%2026.99Z%22%20fill%3D%22%23FFC93C%22/%3E%3Cg%20fill%3D%22%23FFC93C%22%20stroke%3D%22%23FFC93C%22%20stroke-width%3D%220.5%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M45.58%2032.95L61.24%2036.28L54.53%2044.26L43.62%2038.21ZM43.20%2038.93L51.25%2043.86L45.85%2050.31L39.59%2043.23ZM38.96%2043.77L46.81%2053.47L40.11%2061.45L34.12%2046.62Z%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2214.2%22%20cy%3D%2217.2%22%20r%3D%222.9%22%20fill%3D%22%23FFC93C%22/%3E%3C/svg%3E">
+<title>PhishQuest — Tactical Cybersecurity Training</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-logo" viewBox="0 0 64 64"><path d="M3.08 26.99A24 24 0 1 0 23.22 5.30A17.5 17.5 0 1 1 3.08 26.99Z" fill="currentColor"/><g fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"><path d="M45.58 32.95L61.24 36.28L54.53 44.26L43.62 38.21ZM43.20 38.93L51.25 43.86L45.85 50.31L39.59 43.23ZM38.96 43.77L46.81 53.47L40.11 61.45L34.12 46.62Z"/></g><circle cx="14.2" cy="17.2" r="2.9" fill="currentColor"/></symbol><symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.5 20.5 5.7v5.8c0 5-3.4 8.7-8.5 10-5.1-1.3-8.5-5-8.5-10V5.7Z" fill="currentColor"/><path d="m8.2 12.1 2.7 2.7 5-5.4" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><path d="M7.6 10.5V8a4.4 4.4 0 0 1 8.8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="4" y="10" width="16" height="11" rx="3" fill="currentColor"/><circle cx="12" cy="14.6" r="1.7" fill="var(--ic-cut)"/><path d="M12 15.5v2.3" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7.8" r="4.3" fill="currentColor"/><path d="M3.8 21c0-4.2 3.6-6.9 8.2-6.9s8.2 2.7 8.2 6.9Z" fill="currentColor"/></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.8" y="5" width="18.4" height="14" rx="3" fill="currentColor"/><path d="m4.5 8 7.5 5.6L19.5 8" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-id" viewBox="0 0 24 24"><rect x="2.8" y="4.8" width="18.4" height="14.4" rx="3" fill="currentColor"/><circle cx="8.4" cy="10.4" r="2" fill="var(--ic-cut)"/><path d="M5.3 16.2c.5-1.7 1.6-2.5 3.1-2.5s2.6.8 3.1 2.5Z" fill="var(--ic-cut)"/><path d="M14.2 10h4M14.2 13.6h3" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="m16.2 7.8-2.2 6.2-6.2 2.2L10 10Z" fill="var(--ic-cut)"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><rect x="3.5" y="11" width="4.6" height="9.5" rx="1.4" fill="currentColor"/><rect x="9.7" y="3.5" width="4.6" height="17" rx="1.4" fill="currentColor"/><rect x="15.9" y="8" width="4.6" height="12.5" rx="1.4" fill="currentColor"/></symbol><symbol id="i-logout" viewBox="0 0 24 24"><path d="M9.5 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m15 7.5 4.5 4.5-4.5 4.5M19.5 12H9.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.6 2.2 4.8 13.4h6.1l-1.5 8.4 9.8-12h-6.4Z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M1.8 12S5.6 5 12 5s10.2 7 10.2 7-3.8 7-10.2 7S1.8 12 1.8 12Z" fill="currentColor"/><circle cx="12" cy="12" r="3.6" fill="var(--ic-cut)"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7.2 5.6H4.3c0 3.6 1.4 5.4 3.9 6M16.8 5.6h2.9c0 3.6-1.4 5.4-3.9 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6.6 3.5h10.8v6.2a5.4 5.4 0 0 1-10.8 0Z" fill="currentColor"/><path d="M12 15.2V18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="7.5" y="18" width="9" height="3" rx="1.2" fill="currentColor"/></symbol><symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="var(--ic-cut)" stroke-width="1.9"/><circle cx="12" cy="12" r="2" fill="var(--ic-cut)"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><path d="m15.8 15.8 5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/><circle cx="10.4" cy="10.4" r="7" fill="currentColor"/><path d="M7 9.2a4 4 0 0 1 3.2-2.5" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-medal" viewBox="0 0 24 24"><path d="m8 2.8 3.9 6.2-2.6 1.6L5.3 4.4ZM16 2.8 12.1 9l2.6 1.6 4-6.2Z" fill="currentColor"/><circle cx="12" cy="15" r="6.2" fill="currentColor"/><path d="m12 11.5 1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3Z" fill="var(--ic-cut)"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 7.5 8 12l4-7.5 4 7.5 5-4.5-1.9 10H4.9Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><rect x="4.6" y="19.2" width="14.8" height="2.4" rx="1.2" fill="currentColor"/><circle cx="12" cy="14.6" r="1.4" fill="var(--ic-cut)"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M9.8 14.2a4.2 4.2 0 0 0 5.9 0l3-3a4.2 4.2 0 0 0-5.9-5.9l-1.1 1.1" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.2 9.8a4.2 4.2 0 0 0-5.9 0l-3 3a4.2 4.2 0 0 0 5.9 5.9l1.1-1.1" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="M2.8 12h18.4M12 2.8c2.4 2.5 3.6 5.6 3.6 9.2s-1.2 6.7-3.6 9.2c-2.4-2.5-3.6-5.6-3.6-9.2s1.2-6.7 3.6-9.2Z" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M6.5 3.5h11A3.5 3.5 0 0 1 21 7v7a3.5 3.5 0 0 1-3.5 3.5H12L7 21.5v-4A3.5 3.5 0 0 1 3 14V7a3.5 3.5 0 0 1 3.5-3.5Z" fill="currentColor"/><path d="M7.8 9h8.4M7.8 12.3h5" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.8 4.4 4.4L19 7.4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 2.8a6.4 6.4 0 0 0-3.8 11.6c.7.6 1.1 1.3 1.1 2.1h5.4c0-.8.4-1.5 1.1-2.1A6.4 6.4 0 0 0 12 2.8Z" fill="currentColor"/><rect x="8.9" y="18" width="6.2" height="2.2" rx="1.1" fill="currentColor"/><path d="M10.8 21.6h2.4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M9.2 8.6a3 3 0 0 1 2-1.7" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4.5 12h15M13.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-check-square" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="currentColor"/><path d="m8 12.2 2.9 2.9 5.2-5.6" fill="none" stroke="var(--ic-cut)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/></symbol><symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6" stroke="currentColor" stroke-width="2.4" fill="var(--ic-circle-fill,none)"/></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M10 3.5c.6 3.6 2.3 5.3 5.9 5.9-3.6.6-5.3 2.3-5.9 5.9-.6-3.6-2.3-5.3-5.9-5.9 3.6-.6 5.3-2.3 5.9-5.9Z" fill="currentColor"/><path d="M18 14c.3 2 1.2 2.9 3.1 3.2-1.9.3-2.8 1.2-3.1 3.1-.3-1.9-1.2-2.8-3.1-3.1 1.9-.3 2.8-1.2 3.1-3.2Z" fill="currentColor"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="m3.5 17 6-6 4 4 7-7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.2 7.5h5.3V13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M5.5 21.5V3.8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 4.5h12.8l-2.6 4.1 2.6 4.1H5.5Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol><symbol id="i-rank-1" viewBox="0 0 32 32"><path d="M16 3 25 6.2v9.2c0 6.6-3.7 11.4-9 13.6-5.3-2.2-9-7-9-13.6V6.2Z" fill="currentColor"/><path d="M11.3 19.3 16 14.6l4.7 4.7" fill="none" stroke="var(--ic-cut)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-rank-2" viewBox="0 0 32 32"><path d="M16 3 25 6.2v9.2c0 6.6-3.7 11.4-9 13.6-5.3-2.2-9-7-9-13.6V6.2Z" fill="currentColor"/><path d="M11.5 16.2 16 11.7l4.5 4.5M11.5 22 16 17.5l4.5 4.5" fill="none" stroke="var(--ic-cut)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-rank-3" viewBox="0 0 32 32"><path d="M16 3 25 6.2v9.2c0 6.6-3.7 11.4-9 13.6-5.3-2.2-9-7-9-13.6V6.2Z" fill="currentColor"/><path d="M11.5 14.6 16 10.1l4.5 4.5M11.5 19.6 16 15.1l4.5 4.5M11.5 24.4 16 19.9l4.5 4.5" fill="none" stroke="var(--ic-cut)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1"/></symbol><symbol id="i-rank-4" viewBox="0 0 32 32"><path d="M7.2 10.5C5.2 9.6 3.2 10 2 11.4c1.4.1 2.4.6 3 1.5-1.2.1-2.2.6-2.8 1.5 1.3.1 2.3.5 3 1.3-.9.4-1.6 1.1-2 2 2 .3 3.7-.1 4.9-1.1Z" fill="currentColor"/><path d="M7.2 10.5C5.2 9.6 3.2 10 2 11.4c1.4.1 2.4.6 3 1.5-1.2.1-2.2.6-2.8 1.5 1.3.1 2.3.5 3 1.3-.9.4-1.6 1.1-2 2 2 .3 3.7-.1 4.9-1.1Z" fill="currentColor" transform="translate(32 0) scale(-1 1)"/><path d="M16 3 25 6.2v9.2c0 6.6-3.7 11.4-9 13.6-5.3-2.2-9-7-9-13.6V6.2Z" fill="currentColor"/><path d="m16 6.8 1.5 3.1 3.4.5-2.5 2.4.6 3.4-3-1.6-3 1.6.6-3.4-2.5-2.4 3.4-.5Z" fill="var(--ic-cut)"/><path d="M11.8 23.2 16 19l4.2 4.2" fill="none" stroke="var(--ic-cut)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-rank-5" viewBox="0 0 32 32"><path d="M7.2 7.5C4.6 5.8 1.8 6 .4 7.8c1.9.1 3.1.8 3.8 2-1.6 0-2.9.6-3.6 1.7 1.8.2 3.1.9 3.9 2-1.3.1-2.4.8-3 1.8 1.9.5 3.7.3 5.3-.7Z" fill="currentColor"/><path d="M7.2 7.5C4.6 5.8 1.8 6 .4 7.8c1.9.1 3.1.8 3.8 2-1.6 0-2.9.6-3.6 1.7 1.8.2 3.1.9 3.9 2-1.3.1-2.4.8-3 1.8 1.9.5 3.7.3 5.3-.7Z" fill="currentColor" transform="translate(32 0) scale(-1 1)"/><path d="M16 3 25 6.2v9.2c0 6.6-3.7 11.4-9 13.6-5.3-2.2-9-7-9-13.6V6.2Z" fill="currentColor"/><path d="M10.6 19.6 9.8 11.4l3.8 3.2L16 9.6l2.4 5 3.8-3.2-.8 8.2Z" fill="var(--ic-cut)" stroke="var(--ic-cut)" stroke-width="1.2" stroke-linejoin="round"/><rect x="10.6" y="21.2" width="10.8" height="2.2" rx="1.1" fill="var(--ic-cut)"/></symbol></defs></svg><div class="app">
+
+  <!-- LOGIN SCREEN -->
+  <div class="screen auth-screen active" id="login-screen">
+    <div class="auth-split-layout">
+      <!-- Left Branding Section -->
+      <div class="auth-branding">
+        <h1 class="auth-branding-heading">
+          Spot it<br>
+          before it<br>
+          <span class="highlight">spots you.</span>
+        </h1>
+        <p class="auth-branding-description">
+          Every login attempt, every link, every sender — treat
+          it like a scenario. PhishQuest drops you into real
+          inbox traps so the real ones don't fool you.
+        </p>
+      </div>
+
+      <!-- Right Login Section -->
+      <div class="auth-form-section">
+        <div class="auth-form-container">
+          <div class="auth-brand-row">
+            <div class="auth-shield"><svg class="ic" aria-hidden="true"><use href="#i-logo"/></svg></div>
+            <div class="auth-brand-title">PHISHQUEST</div>
+          </div>
+          <p class="auth-tagline">Field training for spotting phishing before it spots you.</p>
+
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">Login</button>
+            <button class="auth-tab" data-tab="register">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <div class="auth-form active" id="login-form">
+            <div class="auth-eyebrow">PARTICIPANT ACCESS</div>
+            <div class="auth-field-label">Student ID</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-id"/></svg></span>
+              <input type="text" id="login-username" placeholder="e.g. 02000123456">
+            </div>
+            <p class="auth-helper-text">Use the ID on your school portal — no personal email needed.</p>
+            <div class="auth-field-label">Password</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span>
+              <input type="password" id="login-password" placeholder="Enter your password">
+            </div>
+            <button class="auth-btn auth-btn-primary" onclick="handleLogin()">Begin training <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            <p class="auth-error-message" id="login-error"></p>
+            <p class="auth-footer-text">Access is limited to enrolled participants.</p>
+          </div>
+
+          <!-- Register Form -->
+          <div class="auth-form" id="register-form">
+            <div class="auth-eyebrow">NEW AGENT REGISTRATION</div>
+            <div class="auth-field-label">First name</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg></span>
+              <input type="text" id="register-firstname" placeholder="First name">
+            </div>
+            <div class="auth-field-label">Last name</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg></span>
+              <input type="text" id="register-lastname" placeholder="Last name">
+            </div>
+            <div class="auth-field-label">Student ID</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-id"/></svg></span>
+              <input type="text" id="register-username" placeholder="e.g. 02000123456">
+            </div>
+            <div class="auth-field-label">Email</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg></span>
+              <input type="email" id="register-email" placeholder="Enter your email">
+            </div>
+            <div class="auth-field-label">Password</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span>
+              <input type="password" id="register-password" placeholder="Create a password">
+            </div>
+            <div class="auth-field-label">Confirm password</div>
+            <div class="auth-input-row">
+              <span class="icon"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span>
+              <input type="password" id="register-confirm" placeholder="Confirm your password">
+            </div>
+            <button class="auth-btn auth-btn-primary" onclick="handleRegister()">Create account <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            <p class="auth-error-message" id="register-error"></p>
+            <p class="auth-footer-text">Access is limited to enrolled participants.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRE-ASSESSMENT -->
+  <div class="screen" id="pre-assessment-screen">
+    <div class="assessment-container">
+      <div class="assessment-header">
+        <div class="assessment-title" id="pre-assessment-label">PRE-ASSESSMENT - QUESTION 1/5</div>
+        <div class="progress-bar" id="pre-assessment-progress"></div>
+      </div>
+      <div class="assessment-content">
+        <div class="assessment-left">
+          <div class="intel-header">
+            <div class="intel-tag">
+              <span class="red-dot"></span>
+              SCENARIO INTEL
+            </div>
+            <div class="intel-icon"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></div>
+          </div>
+          <div class="intel-text" id="pre-assessment-scenario"></div>
+          <div class="intel-hint">Read carefully - every detail counts.</div>
+          <div class="intel-footer">
+            <span class="checkbox-icon"><svg class="ic" aria-hidden="true"><use href="#i-check-square"/></svg></span>
+            <span>Correct answers yield access to senior missions.</span>
+          </div>
+        </div>
+        <div class="assessment-right">
+          <h3 class="assessment-question" id="pre-assessment-question"></h3>
+          <div class="options-container" id="pre-assessment-options"></div>
+          <button class="btn btn-violet assessment-next-btn" onclick="nextPreAssessment()">Next question <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION HUB -->
+  <div class="screen" id="mission-hub-screen">
+    <div class="hub-layout">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="side-brand">
+          <div class="side-shield"><svg class="ic" aria-hidden="true"><use href="#i-logo"/></svg></div>
+          <div class="side-title">PHISHQUEST</div>
+        </div>
+        <div class="side-tag">Tactical cybersecurity awareness training portal.</div>
+        <nav class="side-nav">
+          <div class="nav-item active" onclick="showScreen('mission-hub')">
+            <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg></span> Missions
+          </div>
+          <div class="nav-item" onclick="showScreen('results-screen')">
+            <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span> Results
+          </div>
+          <div class="nav-item" onclick="handleLogout()">
+            <span class="nav-icon"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg></span> Logout
+          </div>
+        </nav>
+        <!-- Phish Tip panel -->
+        <div class="phish-tip-panel">
+          <div class="phish-tip-label"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg> PHISH TIP</div>
+          <p class="phish-tip-text" id="phish-tip-text">Check the sender's domain, not just the display name. One swapped letter is all it takes.</p>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="hub-main">
+
+        <!-- TOP BAR -->
+        <div class="hub-topbar">
+          <div class="hub-topbar-left">
+            <div class="hub-eyebrow">MISSION HUB</div>
+            <h2 class="hub-title">Choose your next mission</h2>
+            <div class="hub-sub">4 missions · 5 scenarios each</div>
+          </div>
+          <button class="agent-badge-btn" onclick="showRankPopup()" title="View your rank">
+            <div class="agent-badge-avatar" id="agent-avatar" data-tier="1"><svg class="ic" aria-hidden="true"><use href="#i-rank-1"/></svg></div>
+            <div class="agent-badge-info">
+              <div class="agent-badge-name" id="agent-name">Agent #29402</div>
+              <div class="agent-badge-rank" id="agent-rank">NOVICE HUNTER</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- STATS STRIP -->
+        <div class="stat-strip">
+          <div class="stat-card">
+            <div class="stat-card-icon stat-icon-score"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg></div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="current-score">0 <span class="stat-max">/200</span></div>
+              <div class="stat-card-label">CURRENT SCORE</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon stat-icon-scenarios"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg></div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="scenarios-completed">0 <span class="stat-max">/20</span></div>
+              <div class="stat-card-label">SCENARIOS</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon stat-icon-missions"><svg class="ic" aria-hidden="true"><use href="#i-flag"/></svg></div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="missions-cleared">0 <span class="stat-max">/4</span></div>
+              <div class="stat-card-label">MISSIONS CLEARED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPLETION PROGRESS BAR -->
+        <div class="completion-bar-wrap">
+          <div class="completion-bar-header">
+            <span class="completion-bar-label">COMPLETION PROGRESS</span>
+            <span class="completion-bar-pct" id="completion-percent">0% (0/20)</span>
+          </div>
+          <div class="completion-bar-track" id="completion-bar"></div>
+        </div>
+
+        <!-- YOUR MISSIONS header -->
+        <div class="missions-section-header">
+          <span class="missions-section-title">YOUR MISSIONS</span>
+          <span class="missions-section-hint">Clear each mission to unlock the next one.</span>
+        </div>
+
+        <!-- MISSION GRID -->
+        <div class="mission-grid">
+
+          <!-- Mission 1 -->
+          <div class="mission-card" id="mission-1">
+            <div class="mission-card-top">
+              <div class="mission-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg></div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 01</span>
+                <span class="sticker sticker-locked" id="mission-1-status"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Email Detective</h3>
+            <p class="mission-card-desc">Spot the red flags in a suspicious inbox.</p>
+            <div class="mission-scenario-dots" id="mission-1-dots"></div>
+            <div class="mission-scenario-text" id="mission-1-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-1-btn" disabled onclick="startMission(1)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-1-overlay">Access denied</div>
+            <div class="mission-bg-num">01</div>
+          </div>
+
+          <!-- Mission 2 -->
+          <div class="mission-card" id="mission-2">
+            <div class="mission-card-top">
+              <div class="mission-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg></div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 02</span>
+                <span class="sticker sticker-locked" id="mission-2-status"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Link Hunter</h3>
+            <p class="mission-card-desc">Tell real domains from fakes.</p>
+            <div class="mission-scenario-dots" id="mission-2-dots"></div>
+            <div class="mission-scenario-text" id="mission-2-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-2-btn" disabled onclick="startMission(2)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-2-overlay">Access denied</div>
+            <div class="mission-bg-num">02</div>
+          </div>
+
+          <!-- Mission 3 -->
+          <div class="mission-card" id="mission-3">
+            <div class="mission-card-top">
+              <div class="mission-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 03</span>
+                <span class="sticker sticker-locked" id="mission-3-status"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Fake Website</h3>
+            <p class="mission-card-desc">Inspect a cloned login page.</p>
+            <div class="mission-scenario-dots" id="mission-3-dots"></div>
+            <div class="mission-scenario-text" id="mission-3-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-3-btn" disabled onclick="startMission(3)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-3-overlay">Access denied</div>
+            <div class="mission-bg-num">03</div>
+          </div>
+
+          <!-- Mission 4 -->
+          <div class="mission-card" id="mission-4">
+            <div class="mission-card-top">
+              <div class="mission-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></div>
+              <div class="mission-card-meta">
+                <span class="mission-num">MISSION 04</span>
+                <span class="sticker sticker-locked" id="mission-4-status"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Locked</span>
+              </div>
+            </div>
+            <h3 class="mission-card-title">Social Engineering</h3>
+            <p class="mission-card-desc">Catch impersonation in a live chat.</p>
+            <div class="mission-scenario-dots" id="mission-4-dots"></div>
+            <div class="mission-scenario-text" id="mission-4-dot-label">0/5 scenarios</div>
+            <button class="mission-action-btn" id="mission-4-btn" disabled onclick="startMission(4)">Access denied</button>
+            <div class="mission-locked-msg" id="mission-4-overlay">Access denied</div>
+            <div class="mission-bg-num">04</div>
+          </div>
+
+        </div><!-- /.mission-grid -->
+
+        <!-- NEXT UP / ALL CLEARED banner -->
+        <div class="next-up-banner" id="next-up-banner">
+          <div class="next-up-inner">
+            <div class="next-up-label" id="next-up-label">UP NEXT</div>
+            <div class="next-up-title" id="next-up-title">Launch Email Detective</div>
+            <div class="next-up-sub" id="next-up-sub">Clear it to unlock Mission 02.</div>
+          </div>
+          <button class="btn btn-violet" id="hub-post-assessment-btn" style="display:none;" onclick="startPostAssessment()">Take Post-Assessment</button>
+        </div>
+
+      </div><!-- /.hub-main -->
+    </div><!-- /.hub-layout -->
+  </div>
+
+  <!-- RANK POPUP -->
+  <div class="rank-popup" id="rank-popup" style="display:none;">
+    <div class="rank-popup-content">
+      <button class="rank-close-btn" onclick="hideRankPopup()"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+
+      <!-- Current rank header -->
+      <div class="rank-popup-hero">
+        <div class="rank-popup-hero-label">YOUR RANK</div>
+        <div class="rank-popup-hero-icon" data-tier="1" id="rank-hero-icon"><svg class="ic" aria-hidden="true"><use href="#i-rank-1"/></svg></div>
+        <div class="rank-popup-hero-title" id="rank-current-title">NOVICE HUNTER</div>
+        <div class="rank-popup-hero-sub">Nothing phishes past you.<br><span id="rank-hero-agent">Agent #29402</span></div>
+      </div>
+
+      <!-- Progress bar row -->
+      <div class="rank-popup-progress-row">
+        <span class="rank-popup-progress-label" id="rank-points-remaining">Top rank reached — nothing phishes past you.</span>
+        <span class="rank-popup-progress-score" id="rank-current-score">0/200</span>
+      </div>
+      <div class="rank-progress-bar">
+        <div class="rank-progress-fill" id="rank-progress-fill" style="width:0%;"></div>
+      </div>
+
+      <!-- Rank ladder -->
+      <div class="rank-ladder">
+        <div class="rank-ladder-header">RANK LADDER</div>
+
+        <div class="rank-item" data-rank="NOVICE HUNTER" data-tier="1">
+          <div class="rank-item-icon"><svg class="ic" aria-hidden="true"><use href="#i-rank-1"/></svg></div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">NOVICE HUNTER</div>
+            <div class="rank-item-range">0–49 pts · Learning the ropes.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="JUNIOR AGENT" data-tier="2">
+          <div class="rank-item-icon"><svg class="ic" aria-hidden="true"><use href="#i-rank-2"/></svg></div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">JUNIOR AGENT</div>
+            <div class="rank-item-range">50–89 pts · Spotting the obvious traps.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="SKILLED OPERATIVE" data-tier="3">
+          <div class="rank-item-icon"><svg class="ic" aria-hidden="true"><use href="#i-rank-3"/></svg></div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">SKILLED OPERATIVE</div>
+            <div class="rank-item-range">90–129 pts · Reading between the lines.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="SENIOR AGENT" data-tier="4">
+          <div class="rank-item-icon"><svg class="ic" aria-hidden="true"><use href="#i-rank-4"/></svg></div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">SENIOR AGENT</div>
+            <div class="rank-item-range">130–169 pts · Catching what others miss.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+        <div class="rank-item" data-rank="MASTER HUNTER" data-tier="5">
+          <div class="rank-item-icon"><svg class="ic" aria-hidden="true"><use href="#i-rank-5"/></svg></div>
+          <div class="rank-item-info">
+            <div class="rank-item-name">MASTER HUNTER</div>
+            <div class="rank-item-range">170–200 pts · Nothing phishes past you.</div>
+          </div>
+          <div class="rank-item-status">Locked</div>
+        </div>
+
+      </div><!-- /.rank-ladder -->
+    </div><!-- /.rank-popup-content -->
+  </div>
+
+  <!-- MISSION GAMEPLAY SCREEN -->
+  <div class="screen" id="mission-gameplay-screen">
+    <div class="mission-layout">
+      <div class="sidebar">
+        <div class="side-brand">
+          <div class="side-shield"><svg class="ic" aria-hidden="true"><use href="#i-logo"/></svg></div>
+          <div class="side-title">PHISHQUEST</div>
+        </div>
+        <div class="side-tag">Tactical cybersecurity awareness training portal.</div>
+        <div class="nav-item active" onclick="showScreen('mission-hub')"><svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg> Missions</div>
+        <div class="nav-item" onclick="showScreen('results-screen')"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg> Results</div>
+        <div class="nav-item" onclick="handleLogout()"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg> Logout</div>
+        <!-- agent name/rank hidden in gameplay sidebar -->
+        <span id="gameplay-agent-name" style="display:none;"></span>
+        <span id="gameplay-agent-rank" style="display:none;"></span>
+      </div>
+      <div class="mission-main">
+        <div class="tactical-head">
+          <div>
+            <div class="m-label" id="mission-label">MISSION 01 · EMAIL DETECTIVE</div>
+            <div class="m-sub" id="scenario-label">Scenario 1/5</div>
+          </div>
+          <div class="signal">
+            <i style="height:8px;"></i>
+            <i style="height:12px;"></i>
+            <i style="height:16px;"></i>
+          </div>
+        </div>
+        <div class="instruction-row">
+          <p id="mission-instruction">Tap anything in this email that looks suspicious.</p>
+          <span class="found-badge" id="indicators-found">SELECTED: 0</span>
+        </div>
+        <div id="mission-content"></div>
+        <div class="hint-row">
+          <button class="btn btn-violet" style="margin-right:auto;" onclick="showHint()"><svg class="ic" aria-hidden="true"><use href="#i-bulb"/></svg> Hint</button>
+          <p id="mission-hint" style="display:none; color:#C9BEEA;"></p>
+          <button class="btn btn-coral" onclick="submitMissionFindings()">Submit findings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMMEDIATE FEEDBACK -->
+  <div class="screen" id="feedback-screen">
+    <div class="card center-card">
+      <div class="result-head">
+        <div class="eyebrow">SCENARIO RESULT</div>
+        <div class="points" id="feedback-points">+20 points</div>
+        <div class="muted" id="feedback-summary">2 of 3 indicators found.</div>
+      </div>
+      <hr class="sep">
+      <div id="feedback-items"></div>
+      <div class="foot-row">
+        <span class="muted">Score added to Mission progress.</span>
+        <div>
+          <button class="btn btn-outline" onclick="showScreen('mission-hub')" style="margin-right: 10px;">Return to hub</button>
+          <button class="btn btn-violet" id="feedback-next-btn" onclick="nextScenario()">Next scenario <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION DEBRIEF -->
+  <div class="screen" id="mission-debrief-screen">
+    <div class="card center-card">
+      <div class="result-head">
+        <div class="eyebrow">MISSION COMPLETE</div>
+        <h2 style="font-size:26px; margin:6px 0;" id="debrief-title">Email Detective cleared <svg class="ic ic-inline" aria-hidden="true"><use href="#i-sparkles"/></svg></h2>
+        <div class="muted" id="debrief-summary">5 of 5 scenarios complete.</div>
+      </div>
+      <hr class="sep">
+      <div class="stat-pair">
+        <div class="stat-box">
+          <b id="debrief-points">180</b>
+          <span>POINTS EARNED</span>
+        </div>
+        <div class="stat-box">
+          <b id="debrief-flags">13/15</b>
+          <span>FLAGS FOUND</span>
+        </div>
+      </div>
+      <p class="muted" style="text-align:center;">Missions can be replayed anytime to maximize points.</p>
+      <div class="debrief-buttons" style="text-align:center; margin-top:14px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+        <button class="btn btn-primary" style="width:100%; max-width:300px; padding:14px 26px;" onclick="showScreen('mission-hub')">Return to mission hub</button>
+        <button class="btn btn-violet" id="post-assessment-btn" style="width:100%; max-width:300px; padding:14px 26px; display:none;" onclick="startPostAssessment()">Take Post-Assessment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-ASSESSMENT -->
+  <div class="screen" id="post-assessment-screen">
+    <div class="assessment-container">
+      <div class="assessment-header">
+        <div class="assessment-title" id="post-assessment-label">POST-ASSESSMENT - QUESTION 1/5</div>
+        <div class="progress-bar" id="post-assessment-progress"></div>
+      </div>
+      <div class="assessment-content">
+        <div class="assessment-left">
+          <div class="intel-header">
+            <div class="intel-tag">
+              <span class="red-dot"></span>
+              SITUATION BRIEF
+            </div>
+            <div class="intel-icon"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></div>
+          </div>
+          <div class="intel-text" id="post-assessment-scenario"></div>
+          <div class="intel-hint">Read carefully - every detail counts.</div>
+          <div class="intel-footer">
+            <span class="checkbox-icon"><svg class="ic" aria-hidden="true"><use href="#i-check-square"/></svg></span>
+            <span>Correct answers yield access to senior missions.</span>
+          </div>
+        </div>
+        <div class="assessment-right">
+          <h3 class="assessment-question" id="post-assessment-question"></h3>
+          <div class="options-container" id="post-assessment-options"></div>
+          <button class="btn btn-violet assessment-next-btn" onclick="nextPostAssessment()">Next question <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="results-screen">
+    <div class="card" style="max-width:840px; margin:0 auto; padding:36px;">
+      <div class="result-head">
+        <div class="eyebrow">TRAINING COMPLETE</div>
+        <h2 style="font-size:26px; margin:6px 0;" id="results-title">Your awareness went up 20 points <svg class="ic ic-inline" aria-hidden="true"><use href="#i-trend"/></svg></h2>
+      </div>
+      <div class="eyebrow" style="margin-top:20px;">ASSESSMENT GAINS</div>
+      <div class="gain-row" style="margin-top:14px;">
+        <div class="toprow">
+          <span>Pre-Assessment Score</span>
+          <span id="pre-score-display">60%</span>
+        </div>
+        <div class="gain-track">
+          <div class="gain-fill" id="pre-score-bar" style="width:60%;"></div>
+        </div>
+      </div>
+      <div class="gain-row">
+        <div class="toprow">
+          <span>Post-Assessment Score</span>
+          <span id="post-score-display">80%</span>
+        </div>
+        <div class="gain-track">
+          <div class="gain-fill post" id="post-score-bar" style="width:80%;"></div>
+        </div>
+      </div>
+      <div class="foot-row">
+        <span class="muted">Report generated on tactical school activity metrics.</span>
+        <div>
+          <button class="btn btn-violet" onclick="showScreen('mission-hub')" style="margin-right: 10px;">Return to mission hub</button>
+          <button class="btn btn-yellow" onclick="downloadReport()">Download report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
