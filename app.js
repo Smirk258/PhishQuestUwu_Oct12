@@ -1,3 +1,5 @@
+const RANK_TIERS={'NOVICE HUNTER':1,'JUNIOR AGENT':2,'SKILLED OPERATIVE':3,'SENIOR AGENT':4,'MASTER HUNTER':5};function rankTier(n){return RANK_TIERS[n]||1;}
+function icon(n,c){return '<svg class="ic'+(c?' '+c:'')+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';}
 // Application State (shared with auth.js)
 const AppState = {
   currentUser: null,
@@ -393,36 +395,158 @@ const Missions = {
 // Assessment Questions
 const AssessmentQuestions = [
   {
+    visual: 'email-school',
     scenario: "You receive an email saying your school account will be deactivated within 24 hours. It contains a link asking you to verify your account.",
     question: "What indicators suggest this may be phishing?",
     options: ["Urgency", "Suspicious link", "Request for account verification", "All of the above"],
     correct: 3
   },
   {
+    visual: 'chat-it',
     scenario: "A message from 'IT Support' asks for your password to fix an account issue.",
     question: "What should you do?",
     options: ["Provide the password immediately", "Ignore the message", "Report to official IT support", "Share with a colleague"],
     correct: 2
   },
   {
+    visual: 'usb-drop',
     scenario: "You find a USB drive in the parking lot labeled 'Employee Salaries'.",
     question: "What is the safest action?",
     options: ["Plug it in to see contents", "Give it to security/IT", "Take it home", "Format it and use it"],
     correct: 1
   },
   {
+    visual: 'email-bank',
     scenario: "An email claims to be from your bank asking you to click a link to verify a transaction.",
     question: "What should you do?",
     options: ["Click the link immediately", "Call the bank using official number", "Reply with your account details", "Forward to friends"],
     correct: 1
   },
   {
+    visual: 'popup-scam',
     scenario: "A pop-up says your computer is infected and you need to call a number for help.",
     question: "What is this likely to be?",
     options: ["Legitimate security alert", "Tech support scam", "Windows update", "Antivirus notification"],
     correct: 1
   }
 ];
+
+
+// ---------- Assessment scenario visuals (realistic mock-ups) ----------
+const SV_CREST = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5 20.5 5.7v5.8c0 5-3.4 8.7-8.5 10-5.1-1.3-8.5-5-8.5-10V5.7Z" fill="currentColor"/><path d="m8.2 12.1 2.7 2.7 5-5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function buildAssessmentVisual(type) {
+  const bar = (title) => '<div class="sv-bar"><span class="sv-dots"><i></i><i></i><i></i></span><span class="sv-bar-title">' + title + '</span></div>';
+  const pill = (t) => '<div class="sv-pill">' + t + '</div>';
+  switch (type) {
+    case 'email-school':
+      return pill('EMAIL &middot; INBOX') +
+        '<div class="sv-win">' + bar('Inbox') +
+        '<div class="sv-mail-head">' +
+          '<div class="sv-subject">Action required: your account will be deactivated in 24 hours</div>' +
+          '<div class="sv-sender"><div class="sv-avatar" style="background:#d93025">S</div>' +
+          '<div><div class="sv-name">State College IT <span class="sv-addr">&lt;no-reply@statecollege-helpdesk.com&gt;</span></div>' +
+          '<div class="sv-sub">to me &middot; 7:42 AM</div></div></div>' +
+        '</div>' +
+        '<div class="sv-mail-body">' +
+          '<div class="sv-brandline" style="color:#1a4fc4">' + SV_CREST + ' STATE COLLEGE &middot; Information Technology</div>' +
+          '<p>Dear Student,</p>' +
+          '<p>We were unable to verify your school account. <b>Your access will be deactivated within 24 hours</b> unless you confirm your details now.</p>' +
+          '<span class="sv-cta" style="background:#1a4fc4">Verify My Account</span>' +
+          '<p class="sv-sub" style="margin-top:10px">IT Services Team</p>' +
+        '</div>' +
+        '<div class="sv-status"><span>Link goes to:</span> http://statecollege-verify.co/login?ref=7f3a</div>' +
+        '</div>';
+
+    case 'chat-it':
+      return pill('DIRECT MESSAGE') +
+        '<div class="sv-win sv-chat">' +
+        '<div class="sv-chat-head"><div class="sv-avatar" style="background:#6b7280">IT</div>' +
+          '<div><div class="sv-name">IT Support</div><div class="sv-sub">Message request</div></div></div>' +
+        '<div class="sv-chat-body">' +
+          '<div class="sv-notice">This person is not in your contacts</div>' +
+          '<div class="sv-msg">Hello! This is IT Support.</div>' +
+          '<div class="sv-msg">We detected suspicious activity on your account.</div>' +
+          '<div class="sv-msg">To fix it quickly, please reply with your current password. Thanks!</div>' +
+          '<div class="sv-time">9:14 AM</div>' +
+        '</div>' +
+        '<div class="sv-input"><span>Type a message&hellip;</span><b class="sv-send">&#10148;</b></div>' +
+        '</div>';
+
+    case 'usb-drop':
+      return pill('FOUND OBJECT') +
+        '<div class="sv-usb-wrap">' +
+        '<svg viewBox="0 0 360 215" class="sv-usb" role="img" aria-label="A USB drive on the ground labeled Employee Salaries">' +
+          '<defs>' +
+            '<linearGradient id="svAsp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b4b54"/><stop offset="1" stop-color="#2c2c33"/></linearGradient>' +
+            '<linearGradient id="svBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3566ff"/><stop offset="1" stop-color="#1a34b5"/></linearGradient>' +
+            '<linearGradient id="svMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef1f6"/><stop offset="1" stop-color="#97a0b0"/></linearGradient>' +
+          '</defs>' +
+          '<rect width="360" height="215" fill="url(#svAsp)"/>' +
+          '<path d="M-10 172 L370 152 L370 169 L-10 189Z" fill="#e6d247" opacity=".85"/>' +
+          '<g fill="#fff" opacity=".07"><circle cx="40" cy="30" r="2"/><circle cx="90" cy="70" r="1.6"/><circle cx="300" cy="40" r="2"/><circle cx="330" cy="110" r="1.6"/><circle cx="60" cy="130" r="2"/><circle cx="250" cy="20" r="1.4"/><circle cx="150" cy="25" r="1.8"/></g>' +
+          '<ellipse cx="186" cy="140" rx="112" ry="11" fill="#000" opacity=".38"/>' +
+          '<g transform="rotate(-9 186 112)">' +
+            '<rect x="88" y="84" width="142" height="58" rx="15" fill="url(#svBody)" stroke="#0e1d66" stroke-width="2"/>' +
+            '<rect x="222" y="96" width="64" height="34" rx="4" fill="url(#svMetal)" stroke="#6b7486" stroke-width="2"/>' +
+            '<rect x="238" y="104" width="10" height="7" rx="1.5" fill="#3b4355"/><rect x="258" y="104" width="10" height="7" rx="1.5" fill="#3b4355"/>' +
+            '<circle cx="106" cy="113" r="6" fill="#0e1d66"/>' +
+            '<g transform="rotate(-3 168 113)"><rect x="118" y="92" width="102" height="42" rx="3" fill="#fff"/>' +
+              '<text x="169" y="108" text-anchor="middle" font-size="11" font-weight="800" fill="#111" font-family="Arial,sans-serif">EMPLOYEE</text>' +
+              '<text x="169" y="121" text-anchor="middle" font-size="11" font-weight="800" fill="#111" font-family="Arial,sans-serif">SALARIES</text>' +
+              '<rect x="118" y="126" width="102" height="8" fill="#d93025"/>' +
+              '<text x="169" y="132.6" text-anchor="middle" font-size="6.2" font-weight="800" fill="#fff" font-family="Arial,sans-serif" letter-spacing="1">CONFIDENTIAL</text>' +
+            '</g>' +
+          '</g>' +
+        '</svg>' +
+        '<div class="sv-usb-tag">Found near the parking lot entrance</div>' +
+        '</div>';
+
+    case 'email-bank':
+      return pill('EMAIL &middot; BANK ALERT') +
+        '<div class="sv-win">' + bar('Inbox') +
+        '<div class="sv-mail-head">' +
+          '<div class="sv-subject">Unusual activity on your card &ndash; verify this transaction</div>' +
+          '<div class="sv-sender"><div class="sv-avatar" style="background:#0b6b4f">M</div>' +
+          '<div><div class="sv-name">Meridian Trust Bank <span class="sv-addr">&lt;alerts@meridiantrust-secure.com&gt;</span></div>' +
+          '<div class="sv-sub">to me &middot; 2:08 PM</div></div></div>' +
+        '</div>' +
+        '<div class="sv-mail-body">' +
+          '<div class="sv-brandline" style="color:#0b6b4f">' + SV_CREST + ' MERIDIAN TRUST BANK</div>' +
+          '<p>We noticed a transaction that may not be yours:</p>' +
+          '<div class="sv-txn"><div><span class="sv-sub">Merchant</span><b>ELECTRO-WORLD ONLINE</b></div><div><span class="sv-sub">Amount</span><b style="color:#c5221f">$1,248.60</b></div><div><span class="sv-sub">Status</span><b style="color:#b06000">Pending</b></div></div>' +
+          '<p>If you do not verify within the hour, your card may be blocked.</p>' +
+          '<span class="sv-cta" style="background:#0b6b4f">Verify Transaction</span>' +
+        '</div>' +
+        '<div class="sv-status"><span>Link goes to:</span> http://meridiantrust-secure.com/verify/txn</div>' +
+        '</div>';
+
+    case 'popup-scam':
+      return pill('WEB POP-UP') +
+        '<div class="sv-win sv-browser">' +
+        '<div class="sv-tabs"><span class="sv-tab">free-games-online</span></div>' +
+        '<div class="sv-urlbar"><span class="sv-nsec">Not secure</span><span class="sv-url">www.free-games-online.net/play?id=88231</span></div>' +
+        '<div class="sv-scam">' +
+          '<div class="sv-scam-top">WINDOWS SECURITY ALERT</div>' +
+          '<div class="sv-scam-body">' +
+            '<svg class="ic sv-scam-ic" aria-hidden="true"><use href="#i-alert"/></svg>' +
+            '<div class="sv-scam-title">Your computer is infected!</div>' +
+            '<div class="sv-scam-text">3 viruses found: Trojan.Agent.Win32, Spyware.KeyLog, Adware.Popup. Your passwords and photos are at risk. <b>Do not close this window or restart your PC.</b></div>' +
+            '<div class="sv-scam-timer">PC will be locked in <b>04:59</b></div>' +
+            '<div class="sv-scam-call">Call Support Now: 1-888-555-0147</div>' +
+          '</div>' +
+        '</div>' +
+        '</div>';
+  }
+  return '';
+}
+
+function renderAssessmentVisual(containerId, type) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = buildAssessmentVisual(type);
+  el.style.display = type ? '' : 'none';
+}
 
 // Authentication Functions - moved to js/auth.js
 // handleLogin(), handleRegister(), handleLogout() are now in auth.js
@@ -490,6 +614,8 @@ function updateAgentInfo() {
   const badgeRank = document.getElementById('agent-rank');
   if (badgeName) badgeName.textContent = agentName;
   if (badgeRank) badgeRank.textContent = rank;
+  const badgeAvatar = document.getElementById('agent-avatar');
+  if (badgeAvatar) { badgeAvatar.innerHTML = icon('rank-' + rankTier(rank)); badgeAvatar.dataset.tier = rankTier(rank); }
 
   // Gameplay sidebar (unchanged IDs)
   const gpName = document.getElementById('gameplay-agent-name');
@@ -579,14 +705,14 @@ function syncRankPopupData() {
     'MASTER HUNTER':    'Nothing phishes past you.'
   };
   const rankIcons = {
-    'NOVICE HUNTER':    '🎯',
-    'JUNIOR AGENT':     '🔍',
-    'SKILLED OPERATIVE':'🎖️',
-    'SENIOR AGENT':     '⭐',
-    'MASTER HUNTER':    '👑'
+    'NOVICE HUNTER':    'rank-1',
+    'JUNIOR AGENT':     'rank-2',
+    'SKILLED OPERATIVE':'rank-3',
+    'SENIOR AGENT':     'rank-4',
+    'MASTER HUNTER':    'rank-5'
   };
 
-  if (heroIcon) heroIcon.textContent = rankIcons[rankInfo.current] || '🏆';
+  if (heroIcon) heroIcon.innerHTML = icon(rankIcons[rankInfo.current] || 'rank-1'); heroIcon.dataset.tier = rankTier(rankInfo.current);
   if (document.querySelector('.rank-popup-hero-sub')) {
     document.querySelector('.rank-popup-hero-sub').innerHTML =
       `${heroSubText[rankInfo.current] || ''}<br><span id="rank-hero-agent">Agent #${AppState.currentUser ? AppState.currentUser.agentNumber : ''}</span>`;
@@ -616,7 +742,7 @@ function syncRankPopupData() {
       if (statusEl) statusEl.textContent = 'YOU ARE HERE';
     } else if (getRankScore(rankName) <= AppState.score) {
       item.classList.add('earned');
-      if (statusEl) statusEl.textContent = '✓ Earned';
+      if (statusEl) statusEl.innerHTML = icon('check') + ' Earned';
     } else {
       item.classList.add('locked');
       if (statusEl) statusEl.textContent = 'Locked';
@@ -657,6 +783,7 @@ function showPreAssessmentQuestion() {
   document.getElementById('pre-assessment-label').textContent = `PRE-ASSESSMENT - QUESTION ${AppState.preAssessmentIndex + 1}/${total}`;
   document.getElementById('pre-assessment-scenario').textContent = question.scenario;
   document.getElementById('pre-assessment-question').textContent = question.question;
+  renderAssessmentVisual('pre-assessment-visual', question.visual);
 
   // Build progress bar segments
   const progressContainer = document.getElementById('pre-assessment-progress');
@@ -795,7 +922,7 @@ function updateMissionHub() {
       // ── CLEARED ──
       card.classList.add('state-cleared');
       statusEl.className = 'sticker sticker-cleared';
-      statusEl.textContent = '✓ Cleared';
+      statusEl.innerHTML = icon('check') + ' Cleared';
       btnEl.className = 'mission-action-btn';
       btnEl.disabled = false;
       btnEl.style.background = '';
@@ -839,7 +966,7 @@ function updateMissionHub() {
         // ── LOCKED ──
         card.classList.add('state-locked');
         statusEl.className = 'sticker sticker-locked';
-        statusEl.textContent = '🔒 Locked';
+        statusEl.innerHTML = icon('lock') + ' Locked';
         btnEl.className = 'mission-action-btn';
         btnEl.disabled = true;
         btnEl.style.background = '';
@@ -1010,7 +1137,7 @@ function renderLinksScenario(links, container) {
     linkRow.className = 'link-row';
     linkRow.dataset.index = index;
     linkRow.innerHTML = `
-      <span class="link-icon">○</span>
+      <span class="link-icon">${icon('circle')}</span>
       <code>${link.url}</code>
     `;
     linkRow.onclick = () => toggleLinkIndicator(index);
@@ -1034,7 +1161,7 @@ function renderWebsiteScenario(content, container) {
       </div>
     </div>
     <div class="fake-login">
-      <div class="lock-title" data-indicator="title">🛡️ ${content.title}</div>
+      <div class="lock-title" data-indicator="title">${icon('shield')} ${content.title}</div>
       <div class="urgent" data-indicator="urgent">"${content.urgent}"</div>
       <div class="fields">
         <div class="field-label">EMAIL ADDRESS</div>
@@ -1267,12 +1394,12 @@ function applyVisualFeedback(scenario, correctIndicators) {
       
       if (correctIndicators.includes(key)) {
         row.classList.add('correct');
-        icon.textContent = '✓';
+        icon.innerHTML = window.icon('check');
       } else if (AppState.selectedIndicators.includes(key)) {
         row.classList.add('incorrect');
-        icon.textContent = '✗';
+        icon.innerHTML = window.icon('x');
       } else {
-        icon.textContent = '○';
+        icon.innerHTML = window.icon('circle');
       }
     });
   } else if (scenario.type === 'email') {
@@ -1402,7 +1529,7 @@ function showFeedback(points, found, total, incorrect, scenario) {
     feedbackItem.innerHTML = `
       <div class="fdot ${wasFound ? 'good' : 'bad'}"></div>
       <div>
-        <h4>${wasFound ? '✓ CORRECTLY IDENTIFIED' : '✗ MISSED'}: ${getIndicatorName(indicator, scenario)}</h4>
+        <h4>${wasFound ? icon('check','ic-inline') + 'CORRECTLY IDENTIFIED' : icon('x','ic-inline') + 'MISSED'}: ${getIndicatorName(indicator, scenario)}</h4>
         <p>${explanation}</p>
       </div>
     `;
@@ -1417,7 +1544,7 @@ function showFeedback(points, found, total, incorrect, scenario) {
       wrongItem.innerHTML = `
         <div class="fdot bad"></div>
         <div>
-          <h4>✗ INCORRECTLY SELECTED: ${getIndicatorName(indicator, scenario)}</h4>
+          <h4>${icon('x','ic-inline')}INCORRECTLY SELECTED: ${getIndicatorName(indicator, scenario)}</h4>
           <p>This is not actually a phishing indicator. Be careful not to flag legitimate elements.</p>
         </div>
       `;
@@ -1442,10 +1569,10 @@ function showFeedback(points, found, total, incorrect, scenario) {
   // Update next button behavior
   const nextBtn = document.getElementById('feedback-next-btn');
   if (AppState.currentScenario < 4) {
-    nextBtn.textContent = 'Next scenario →';
+    nextBtn.innerHTML = 'Next scenario ' + icon('arrow');
     nextBtn.onclick = nextScenario;
   } else {
-    nextBtn.textContent = 'Complete mission →';
+    nextBtn.innerHTML = 'Complete mission ' + icon('flag');
     nextBtn.onclick = completeMission;
   }
   
@@ -1469,7 +1596,7 @@ function completeMission() {
   const totalFlags = scenarios.reduce((sum, s) => sum + s.indicatorsFound, 0);
   const totalPossible = scenarios.reduce((sum, s) => sum + s.totalIndicators, 0);
   
-  document.getElementById('debrief-title').textContent = `${mission.name} cleared 🎉`;
+  document.getElementById('debrief-title').innerHTML = `${mission.name} cleared ` + icon('sparkles','ic-inline');
   document.getElementById('debrief-summary').textContent = `5 of 5 scenarios complete.`;
   document.getElementById('debrief-points').textContent = totalPoints;
   document.getElementById('debrief-flags').textContent = `${totalFlags}/${totalPossible}`;
@@ -1513,6 +1640,7 @@ function showPostAssessmentQuestion() {
   document.getElementById('post-assessment-label').textContent = `POST-ASSESSMENT - QUESTION ${AppState.postAssessmentIndex + 1}/${total}`;
   document.getElementById('post-assessment-scenario').textContent = question.scenario;
   document.getElementById('post-assessment-question').textContent = question.question;
+  renderAssessmentVisual('post-assessment-visual', question.visual);
 
   // Build progress bar segments
   const progressContainer = document.getElementById('post-assessment-progress');
@@ -1574,7 +1702,7 @@ function showResults() {
   const postPercent = Math.round((AppState.postAssessmentScore / AssessmentQuestions.length) * 100);
   const improvement = postPercent - prePercent;
   
-  document.getElementById('results-title').textContent = `Your awareness went up ${improvement} points 📈`;
+  document.getElementById('results-title').innerHTML = `Your awareness went up ${improvement} points ` + icon('trend','ic-inline');
   document.getElementById('pre-score-display').textContent = `${prePercent}%`;
   document.getElementById('post-score-display').textContent = `${postPercent}%`;
   document.getElementById('pre-score-bar').style.width = `${prePercent}%`;
