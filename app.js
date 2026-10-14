@@ -20,108 +20,147 @@ const AppState = {
   preAssessmentScore: 0,
   postAssessmentScore: 0,
   selectedIndicators: [],
-  selectedOption: null
+  selectedOption: null,
+  streak: 0,
+  chatTimers: []
 };
 
 // Make AppState available globally for auth.js
 window.AppState = AppState;
 
 // Mission Data - 5 scenarios per mission
+// Email / website scenarios use `hotspots`: id -> { flag, name, why | safe }.
+//   flag:true  = a real phishing indicator (explained by `why`)
+//   flag:false = a legitimate element that is easy to mistake for one (explained by `safe`)
 const Missions = {
   1: {
     name: "Email Detective",
     scenarios: [
       {
+        title: "The Suspended Account", difficulty: "Easy", type: "email",
         instruction: "Tap anything in this email that looks suspicious.",
-        indicators: 3,
-        hint: "Analyzing email headers reveals crucial domain mismatches.",
-        type: "email",
-        content: {
-          from: "security@st1-college-support.com",
-          to: "william.cadet@statecollege.edu",
-          subject: "URGENT — your account will be suspended today",
-          body: `<p>Dear Student,</p><p>We detected unusual activity on your account. Your access will be revoked in 24 hours unless you confirm your identity.</p>`,
-          cta: "Click here to verify your account →",
-          flags: ["from", "subject", "cta"]
+        hint: "Compare the sender's domain with the one your college really uses.",
+        email: {
+          fromName: "State College IT", fromAddr: "no-reply@statecollege-helpdesk.com",
+          to: "william.cadet@statecollege.edu", time: "7:42 AM",
+          subject: "Action required: your account will be deactivated in 24 hours",
+          greeting: "Hi William,",
+          body: [
+            { text: "We were unable to verify your school account during our latest security review." },
+            { text: "Please confirm your details today to keep your access." }
+          ],
+          button: { text: "Verify My Account", url: "http://statecollege-verify.co/login?ref=7f3a" },
+          signature: "IT Services Team",
+          footer: "State College · 100 University Avenue"
         },
-        explanations: {
-          from: "The sender domain 'st1-college-support.com' is not the official college domain. Phishers often use similar-looking domains to appear legitimate.",
-          subject: "The subject line uses urgency ('suspended today') to pressure you into acting without thinking. This is a common psychological tactic.",
-          cta: "Legitimate organizations never ask you to verify your account through email links. This is a classic phishing technique to steal credentials."
+        hotspots: {
+          from: { flag: true, name: "Sender address", why: "The college's real domain is statecollege.edu. 'statecollege-helpdesk.com' is a lookalike domain registered by someone else." },
+          subject: { flag: true, name: "Subject line", why: "A 24-hour deadline is a pressure tactic. Phishers rush you so you act before you think." },
+          cta: { flag: true, name: "Verify button", why: "The link goes to 'statecollege-verify.co', not the college's site. Real IT teams never ask you to verify your account through an email link." },
+          greeting: { flag: false, name: "Greeting", safe: "A personal greeting doesn't make an email safe, but it isn't a red flag by itself. Attackers can also find your name online." },
+          signature: { flag: false, name: "Signature", safe: "A plain sign-off is normal. Judge the sender address and the link, not the signature." },
+          footer: { flag: false, name: "Footer", safe: "Footers are easy to copy, so they prove nothing either way. They weren't the problem here." }
         }
       },
       {
-        instruction: "Identify the phishing indicators in this email.",
-        indicators: 2,
-        hint: "Legitimate companies don't ask for sensitive info via email.",
-        type: "email",
-        content: {
-          from: "paypal-security@verification-alert.net",
-          to: "user@example.com",
-          subject: "Verify your PayPal account immediately",
-          body: `<p>Dear Customer,</p><p>Your PayPal account has been limited. Please verify your identity to restore full access.</p>`,
-          cta: "Verify Account Now",
-          flags: ["from", "cta"]
+        title: "The Invoice", difficulty: "Medium", type: "email",
+        instruction: "This email looks routine. Tap anything that doesn't add up.",
+        hint: "Check where replies would actually go, and what the attachment really is.",
+        email: {
+          fromName: "Northwind Supplies – Billing", fromAddr: "billing@northwind-supplies.com",
+          replyTo: "billing@northwind-payments.biz",
+          to: "accounts@brightlane.co", time: "10:18 AM",
+          subject: "Invoice #4471 for September",
+          greeting: "Hello,",
+          body: [
+            { text: "Please find the attached invoice for September's order." },
+            { text: "Payment is due within 30 days. Let us know if you have any questions." }
+          ],
+          attachment: { name: "Invoice_4471.pdf.exe", size: "212 KB" },
+          signature: "Northwind Supplies Accounts Team",
+          footer: "Northwind Supplies Ltd. · Accounts Department"
         },
-        explanations: {
-          from: "PayPal's official domain is paypal.com, not verification-alert.net. Phishers create fake domains that sound official.",
-          cta: "PayPal would never ask you to verify your account via an email link. They use secure login pages and official notifications."
+        hotspots: {
+          from: { flag: false, name: "Sender address", safe: "This address matches the vendor's real domain, so on its own it looks fine. Always keep checking the other details." },
+          replyto: { flag: true, name: "Reply-To address", why: "Replies would go to 'northwind-payments.biz', a different domain from the sender. This is a common trick for redirecting payments." },
+          subject: { flag: false, name: "Subject line", safe: "A plain, specific subject is normal for an invoice. It isn't suspicious by itself." },
+          attach: { flag: true, name: "Attachment", why: "'.pdf.exe' is an executable program disguised as a PDF. Real invoices are never .exe files." },
+          signature: { flag: false, name: "Signature", safe: "The sign-off is ordinary. Attackers copy these easily, so it proves nothing." }
         }
       },
       {
-        instruction: "Find the red flags in this message.",
-        indicators: 3,
-        hint: "Check the sender domain and urgency indicators.",
-        type: "email",
-        content: {
-          from: "hr-department@company-update.info",
-          to: "employee@company.com",
-          subject: "URGENT: Update your payroll information",
-          body: `<p>Hello,</p><p>We need you to update your direct deposit information immediately or your paycheck will be delayed.</p>`,
-          cta: "Update Payroll Info",
-          flags: ["from", "subject", "cta"]
+        title: "The Parcel Notice", difficulty: "Easy", type: "email",
+        instruction: "Tap the parts of this delivery notice that look wrong.",
+        hint: "Delivery companies don't ask for payment through a link in an email.",
+        email: {
+          fromName: "PostBox Delivery", fromAddr: "tracking@postbox-delivery.top",
+          to: "you@gmail.com", time: "3:12 PM",
+          subject: "Your parcel is on its way",
+          greeting: "Hello,",
+          body: [
+            { text: "Your parcel is scheduled for delivery tomorrow." },
+            { text: "Tracking number: <b>PB-48820193</b>", hs: "tracking" },
+            { text: "A customs fee of $1.99 is required before delivery.", hs: "fee" }
+          ],
+          button: { text: "Pay Fee & Reschedule", url: "http://bit.ly/3xPq-pay" },
+          signature: "PostBox Customer Care",
+          footer: "PostBox Delivery · Do not reply to this message"
         },
-        explanations: {
-          from: "HR departments use official company email domains, not generic domains like company-update.info.",
-          subject: "Urgent language about payroll is designed to make you act quickly without verifying the source.",
-          cta: "Payroll changes are handled through secure HR portals, not email links. This is an attempt to steal banking information."
+        hotspots: {
+          from: { flag: true, name: "Sender address", why: "'.top' is a cheap, rarely legitimate domain extension, and 'postbox-delivery' isn't the courier's real domain." },
+          subject: { flag: false, name: "Subject line", safe: "A calm, ordinary subject is exactly how a good phish looks. It isn't a flag on its own." },
+          tracking: { flag: false, name: "Tracking number", safe: "A tracking number looks official, but anyone can invent one. It isn't evidence either way." },
+          fee: { flag: true, name: "Fee request", why: "Surprise fees demanded through an email link are a classic way to steal card details." },
+          cta: { flag: true, name: "Pay button", why: "The link is a shortened bit.ly address that hides where you'll really land. Real couriers use their own domain." },
+          footer: { flag: false, name: "Footer", safe: "'Do not reply' is common in automated email, so it isn't suspicious by itself." }
         }
       },
       {
-        instruction: "Spot the suspicious elements in this email.",
-        indicators: 2,
-        hint: "Generic greetings and urgent requests are common signs.",
-        type: "email",
-        content: {
-          from: "support@microsoft-helpdesk.xyz",
-          to: "user@outlook.com",
-          subject: "Your Microsoft account will be deleted",
-          body: `<p>Dear User,</p><p>Your Microsoft account will be permanently deleted in 48 hours unless you take action.</p>`,
-          cta: "Save My Account",
-          flags: ["from", "subject"]
+        title: "The Library Reminder", difficulty: "Hard", type: "email",
+        instruction: "Most of this email is legitimate. Find the one thing that isn't.",
+        hint: "Think about what a real library would never ask you to send by email.",
+        email: {
+          fromName: "State College Library", fromAddr: "library@statecollege.edu",
+          to: "william.cadet@statecollege.edu", time: "9:05 AM",
+          subject: "Reminder: 'Networks 101' is due Friday",
+          greeting: "Hi William,",
+          body: [
+            { text: "Your borrowed book is due this Friday. You can renew it online in a few clicks." },
+            { text: "To renew by email instead, reply with your student ID and password.", hs: "ask" }
+          ],
+          button: { text: "Renew online", url: "https://library.statecollege.edu/account" },
+          signature: "Library Services",
+          footer: "State College Library · Open Mon–Sat, 8 AM–8 PM"
         },
-        explanations: {
-          from: "Microsoft uses official domains like microsoft.com or support.microsoft.com, not helpdesk.xyz.",
-          subject: "Threats about account deletion are fear tactics used by phishers to create urgency and panic."
+        hotspots: {
+          from: { flag: false, name: "Sender address", safe: "This is the college's real .edu domain. A correct sender plus a normal request is not a red flag." },
+          subject: { flag: false, name: "Subject line", safe: "A specific, ordinary subject about a book you really borrowed is fine." },
+          ask: { flag: true, name: "Password request", why: "No library or IT team will ever ask you to email your password. Even from a real-looking address, that request alone makes it a phish." },
+          cta: { flag: false, name: "Renew button", safe: "This link goes to library.statecollege.edu, the college's own domain, so it is safe. Not every link is a trap." },
+          footer: { flag: false, name: "Footer", safe: "Opening hours are normal footer details." }
         }
       },
       {
-        instruction: "Identify all phishing indicators.",
-        indicators: 3,
-        hint: "Look for mismatched domains and urgent language.",
-        type: "email",
-        content: {
-          from: "admin@google-verify-account.com",
-          to: "user@gmail.com",
-          subject: "Security Alert: Unusual sign-in activity",
-          body: `<p>Dear User,</p><p>We detected suspicious activity on your Google account. Verify your identity immediately.</p>`,
-          cta: "Secure My Account",
-          flags: ["from", "subject", "cta"]
+        title: "The Urgent Favor", difficulty: "Hard", type: "email",
+        instruction: "Your boss emailed you. Does everything check out?",
+        hint: "Executives rarely use free webmail for work, and rarely ask for gift cards.",
+        email: {
+          fromName: "Dana Whitfield (CEO)", fromAddr: "dana.whitfield.ceo@gmail.com",
+          to: "you@brightlane.co", time: "6:05 AM",
+          subject: "Quick favor – are you at your desk?",
+          greeting: "Hi,",
+          body: [
+            { text: "I'm stuck in meetings all day and need you to buy 5 gift cards for a client.", hs: "ask" },
+            { text: "Keep this between us for now. I'll reimburse you today." }
+          ],
+          signature: "Sent from my iPhone",
+          footer: ""
         },
-        explanations: {
-          from: "Google's security emails come from accounts.google.com, not google-verify-account.com.",
-          subject: "Security alerts are designed to alarm you and make you click without thinking carefully.",
-          cta: "Google would never ask you to 'secure your account' through an email link. They use official security notifications."
+        hotspots: {
+          from: { flag: true, name: "Sender address", why: "A CEO writing about company business from a free Gmail address is a strong sign of impersonation. The display name is easy to fake." },
+          subject: { flag: false, name: "Subject line", safe: "Short, casual subjects are normal at work. On its own it proves nothing." },
+          ask: { flag: true, name: "Gift card request", why: "Gift cards are untraceable, which is why scammers ask for them. Combined with secrecy, it's a textbook business-email scam." },
+          signature: { flag: false, name: "Signature", safe: "'Sent from my iPhone' is a default signature that scammers can copy. It's not a flag either way." }
         }
       }
     ]
@@ -130,89 +169,89 @@ const Missions = {
     name: "Link Hunter",
     scenarios: [
       {
+        title: "Lookalike Logins", difficulty: "Easy", type: "links",
+        context: "Pasted into a group chat after a \"security alert\"",
         instruction: "Select the URLs that look suspicious.",
-        indicators: 2,
-        hint: "Watch out for look-alike characters (homoglyphs) and wrong domains.",
-        type: "links",
+        hint: "Look closely at the bold part of each address. That is the real domain.",
         content: [
-          { url: "https://www.facebook.com", suspicious: false },
-          { url: "https://www.faceb00k-security-login.com", suspicious: true },
-          { url: "https://www.microsoft.com", suspicious: false },
-          { url: "https://microsoft.verify-account.xyz", suspicious: true }
+          { url: "https://www.facebook.com", brand: "facebook", suspicious: false },
+          { url: "https://www.faceb00k-security-login.com", brand: "facebook", suspicious: true },
+          { url: "https://www.microsoft.com", brand: "microsoft", suspicious: false },
+          { url: "https://microsoft.verify-account.xyz", brand: "microsoft", suspicious: true }
         ],
         explanations: {
-          "link-1": "This URL uses 'faceb00k' with zeros instead of 'o' - a homoglyph attack to trick your eyes.",
-          "link-3": "Microsoft would never use 'verify-account.xyz' as a domain. Legitimate domains end in .com, .org, or official country codes."
+          "link-1": "This URL uses zeros in place of the letter 'o' in 'faceb00k', a homoglyph trick that fools quick glances.",
+          "link-3": "'microsoft' is only a subdomain here. The real domain, the bold part, is 'verify-account.xyz', which Microsoft doesn't own."
         }
       },
       {
+        title: "Doubled Letters", difficulty: "Easy", type: "links",
+        context: "Top results when someone searched for their account page",
         instruction: "Identify the suspicious URLs.",
-        indicators: 2,
-        hint: "Check for subdomain abuse and misspellings.",
-        type: "links",
+        hint: "Check for added words and extra letters in the domain.",
         content: [
-          { url: "https://www.amazon.com", suspicious: false },
-          { url: "https://amazon-security-check.net", suspicious: true },
-          { url: "https://www.apple.com", suspicious: false },
-          { url: "https://www.appple-id-verify.com", suspicious: true }
+          { url: "https://www.amazon.com", brand: "amazon", suspicious: false },
+          { url: "https://amazon-security-check.net", brand: "amazon", suspicious: true },
+          { url: "https://www.apple.com", brand: "apple", suspicious: false },
+          { url: "https://www.appple-id-verify.com", brand: "apple", suspicious: true }
         ],
         explanations: {
-          "link-1": "Amazon's official domain is amazon.com, not amazon-security-check.net. The '.net' extension is suspicious.",
-          "link-3": "This URL has 'appple' with three p's instead of two - a deliberate misspelling to deceive users."
+          "link-1": "Amazon's real domain is amazon.com. 'amazon-security-check.net' is a different site that just borrows the name.",
+          "link-3": "'appple' has three p's instead of two, a deliberate misspelling to catch you off guard."
         }
       },
       {
+        title: "Bank Alerts", difficulty: "Medium", type: "links",
+        context: "Links collected from an email's footer",
         instruction: "Select the malicious links.",
-        indicators: 3,
-        hint: "Look for HTTP instead of HTTPS and unusual domain extensions.",
-        type: "links",
+        hint: "Look for http instead of https, odd endings like .xyz or .tk, and extra words around a brand.",
         content: [
-          { url: "https://www.netflix.com", suspicious: false },
-          { url: "http://netflix-login-verify.tk", suspicious: true },
-          { url: "https://bankofamerica.com", suspicious: false },
-          { url: "https://bankofamerica-secure-login.xyz", suspicious: true },
-          { url: "https://www.chase.com", suspicious: false },
-          { url: "https://chase-bank-alert.co", suspicious: true }
+          { url: "https://www.netflix.com", brand: "netflix", suspicious: false },
+          { url: "http://netflix-login-verify.tk", brand: "netflix", suspicious: true },
+          { url: "https://www.bankofamerica.com", brand: "boa", suspicious: false },
+          { url: "https://bankofamerica-secure-login.xyz", brand: "boa", suspicious: true },
+          { url: "https://www.chase.com", brand: "chase", suspicious: false },
+          { url: "https://chase-bank-alert.co", brand: "chase", suspicious: true }
         ],
         explanations: {
-          "link-1": "This uses HTTP instead of HTTPS - no encryption, meaning it's not secure. Legitimate sites always use HTTPS.",
-          "link-3": "Bank of America would never use 'secure-login.xyz' as a domain. The .xyz extension is commonly used for phishing.",
-          "link-5": "Chase's official domain is chase.com, not chase-bank-alert.co. The .co extension is often abused by phishers."
+          "link-1": "This uses http, so the connection isn't encrypted, and '.tk' is a free domain ending that phishers love.",
+          "link-3": "Bank of America would never use 'secure-login.xyz'. The real domain here is not bankofamerica.com.",
+          "link-5": "Chase's real domain is chase.com. 'chase-bank-alert.co' is a separate site wearing the bank's name."
         }
       },
       {
+        title: "Career Moves", difficulty: "Medium", type: "links",
+        context: "Shared in a message from a \"recruiter\"",
         instruction: "Find the phishing URLs.",
-        indicators: 2,
-        hint: "Check for domain substitutions and wrong TLDs.",
-        type: "links",
+        hint: "A real brand's domain is short. Be wary of long names with extra words.",
         content: [
-          { url: "https://www.linkedin.com", suspicious: false },
-          { url: "https://linkedin-career-update.net", suspicious: true },
-          { url: "https://www.twitter.com", suspicious: false },
-          { url: "https://twiiter-account-secure.com", suspicious: true }
+          { url: "https://www.linkedin.com", brand: "linkedin", suspicious: false },
+          { url: "https://linkedin-career-update.net", brand: "linkedin", suspicious: true },
+          { url: "https://www.twitter.com", brand: "twitter", suspicious: false },
+          { url: "https://twiiter-account-secure.com", brand: "twitter", suspicious: true }
         ],
         explanations: {
-          "link-1": "LinkedIn's official domain is linkedin.com, not linkedin-career-update.net. This is a fake domain attempting to look official.",
-          "link-3": "This URL has 'twiiter' with one 'i' instead of two - a common misspelling technique in phishing URLs."
+          "link-1": "LinkedIn's real domain is linkedin.com. This address is a different domain with career-themed bait words.",
+          "link-3": "'twiiter' has two i's and no 't' in the right place, a common misspelling trick."
         }
       },
       {
+        title: "Number Swaps", difficulty: "Hard", type: "links",
+        context: "Pop-up that appeared on a shared computer",
         instruction: "Identify all suspicious links.",
-        indicators: 3,
-        hint: "Look for numeric substitutions and unusual domain patterns.",
-        type: "links",
+        hint: "Letters swapped for numbers, and endings that don't match the brand.",
         content: [
-          { url: "https://www.instagram.com", suspicious: false },
-          { url: "https://1nstagram-verify-account.com", suspicious: true },
-          { url: "https://www.paypal.com", suspicious: false },
-          { url: "https://paypal-secure-login.site", suspicious: true },
-          { url: "https://www.ebay.com", suspicious: false },
-          { url: "https://ebay-account-alert.xyz", suspicious: true }
+          { url: "https://www.instagram.com", brand: "instagram", suspicious: false },
+          { url: "https://1nstagram-verify-account.com", brand: "instagram", suspicious: true },
+          { url: "https://www.paypal.com", brand: "paypal", suspicious: false },
+          { url: "https://paypal-secure-login.site", brand: "paypal", suspicious: true },
+          { url: "https://www.ebay.com", brand: "ebay", suspicious: false },
+          { url: "https://ebay-account-alert.xyz", brand: "ebay", suspicious: true }
         ],
         explanations: {
-          "link-1": "This uses '1nstagram' with a number 1 instead of the letter 'i' - a leetspeak substitution to evade detection.",
-          "link-3": "PayPal would never use 'secure-login.site' as a domain. The .site extension is frequently used for phishing sites.",
-          "link-5": "eBay's official domain is ebay.com, not ebay-account-alert.xyz. This is clearly not an official eBay domain."
+          "link-1": "'1nstagram' swaps the letter 'i' for the number 1, a leetspeak substitution.",
+          "link-3": "PayPal would never use 'secure-login.site'. That domain ending is often used for phishing.",
+          "link-5": "eBay's real domain is ebay.com. 'ebay-account-alert.xyz' only borrows the name."
         }
       }
     ]
@@ -221,85 +260,103 @@ const Missions = {
     name: "Fake Website",
     scenarios: [
       {
+        title: "Session Timeout", difficulty: "Easy", type: "website",
         instruction: "Tap anything on this login page that looks suspicious.",
-        indicators: 2,
-        hint: "Hovering links or checking browser addresses exposes destination fraud.",
-        type: "website",
+        hint: "A padlock only means the connection is encrypted. Check who you are connected to.",
         content: {
-          url: "portal-secure-login.verify-access.xyz",
-          title: "STATE COLLEGE PORTAL",
-          urgent: "Your session will expire in 2 minutes — sign in to continue",
-          flags: ["url", "urgent"]
+          tab: "State College Portal", url: "portal-secure-login.verify-access.xyz", secure: true, theme: "#1a4fc4",
+          brand: "STATE COLLEGE PORTAL", heading: "Student sign in",
+          banner: { tone: "warn", text: "Your session will expire in 2 minutes. Sign in to continue." },
+          fields: [{ label: "College email", value: "william.cadet@statecollege.edu" }, { label: "Password", pass: true }],
+          button: "Sign in", links: ["Forgot password?", "Help"],
+          footer: "© 2026 State College · Privacy · Terms"
         },
-        explanations: {
-          url: "The domain 'verify-access.xyz' is not an official college domain. Educational institutions use .edu domains, not .xyz.",
-          urgent: "Session expiration warnings in under 2 minutes are fake. Real systems give reasonable timeframes and don't pressure you this way."
+        hotspots: {
+          url: { flag: true, name: "Website address", why: "The real domain is 'verify-access.xyz', not the college's .edu domain. Everything before it is just decoration." },
+          lock: { flag: false, name: "Padlock", safe: "The padlock only shows the connection is encrypted. Phishing sites can get one too, so it doesn't prove the site is real." },
+          brand: { flag: false, name: "Logo / title", safe: "Logos and titles are trivial to copy. They can't tell you whether a page is genuine." },
+          banner: { flag: true, name: "Urgency banner", why: "Real portals don't count down two-minute deadlines. The pressure is meant to stop you from checking the address." },
+          footer: { flag: false, name: "Footer", safe: "Footer text is easy to copy and proves nothing." }
         }
       },
       {
-        instruction: "Find the suspicious elements on this page.",
-        indicators: 2,
-        hint: "Check the domain and look for urgency tactics.",
-        type: "website",
+        title: "Locked Account", difficulty: "Medium", type: "website",
+        instruction: "Find what's wrong with this banking page.",
+        hint: "Think about what a bank's sign-in page would never ask for.",
         content: {
-          url: "bank-secure-login.online-banking.xyz",
-          title: "NATIONAL BANK",
-          urgent: "Your account has been locked — sign in to unlock",
-          flags: ["url", "urgent"]
+          tab: "National Bank – Sign in", url: "bank-secure-login.online-banking.xyz", secure: true, theme: "#0b6b4f",
+          brand: "NATIONAL BANK", heading: "Online banking",
+          banner: { tone: "bad", text: "Your account has been locked. Sign in to unlock it." },
+          fields: [{ label: "Online ID", value: "wcadet88" }, { label: "Password", pass: true }, { label: "ATM PIN", pass: true, hs: "pin" }],
+          button: "Unlock account", links: ["Forgot ID?", "Security centre"],
+          footer: "© 2026 National Bank · Member FDIC"
         },
-        explanations: {
-          url: "Banks use official domains with proper security certificates. 'online-banking.xyz' is clearly not a legitimate bank domain.",
-          urgent: "Banks don't lock accounts and force immediate login through emails. They use secure customer service channels for account issues."
+        hotspots: {
+          url: { flag: true, name: "Website address", why: "'online-banking.xyz' is the real domain, and it isn't the bank's. Banks use their own short, well-known domains." },
+          lock: { flag: false, name: "Padlock", safe: "The padlock is present on many phishing sites, so it isn't a flag by itself." },
+          banner: { flag: true, name: "Account-locked banner", why: "A scary 'account locked' message is meant to rush you into signing in without thinking." },
+          pin: { flag: true, name: "ATM PIN field", why: "A sign-in page should never ask for your ATM PIN. Asking for it is a sure sign the page is trying to steal card access." },
+          footer: { flag: false, name: "Footer", safe: "'Member FDIC' text is easy to copy. It tells you nothing about the page's safety." }
         }
       },
       {
-        instruction: "Identify the red flags on this login page.",
-        indicators: 3,
-        hint: "Look for wrong domains, urgency, and poor design.",
-        type: "website",
+        title: "Mailbox Full", difficulty: "Medium", type: "website",
+        instruction: "Tap the warning signs on this email sign-in page.",
+        hint: "Check the browser's security label, then read the address from right to left.",
         content: {
-          url: "email-login-verify.microsoft-secure.net",
-          title: "MICROSOFT OUTLOOK",
-          urgent: "Verify your account or lose access forever",
-          flags: ["url", "urgent", "title"]
+          tab: "Outlook – Sign in", url: "email-login-verify.microsoft-secure.net", secure: false, theme: "#0f6cbd",
+          brand: "MICROSOFT OUTLOOK", heading: "Sign in to your mailbox",
+          banner: { tone: "warn", text: "Your mailbox is full. Sign in within 1 hour or messages will be deleted." },
+          fields: [{ label: "Email address", value: "wcadet@outlook.com" }, { label: "Password", pass: true }, { label: "Keep me signed in", check: true, hs: "keep" }],
+          button: "Sign in", links: ["Can't access your account?", "Sign-in options"],
+          footer: "© 2026 Microsoft · Privacy · Terms"
         },
-        explanations: {
-          url: "Microsoft's official domain is microsoft.com, not microsoft-secure.net. The .net extension with 'secure' is suspicious.",
-          urgent: "Threats about losing access 'forever' are fear tactics. Microsoft would never use such extreme language in official communications.",
-          title: "While Microsoft Outlook is real, the combination with the fake domain and urgent language indicates this is a phishing clone."
+        hotspots: {
+          url: { flag: true, name: "Website address", why: "The bold domain is 'microsoft-secure.net', not microsoft.com. 'email-login-verify' is just a subdomain used as camouflage." },
+          lock: { flag: true, name: "Security label", why: "'Not secure' means this sign-in page isn't encrypted, so anything you type could be intercepted." },
+          banner: { flag: true, name: "Mailbox warning", why: "A one-hour deadline to avoid deletion is fear and urgency again, designed to hurry you." },
+          keep: { flag: false, name: "'Keep me signed in'", safe: "That checkbox is a normal feature on real sign-in pages." },
+          brand: { flag: false, name: "Logo / title", safe: "The branding is copied from the real site and tells you nothing." }
         }
       },
       {
-        instruction: "Spot the phishing indicators.",
-        indicators: 2,
-        hint: "Check the domain format and urgent messaging.",
-        type: "website",
+        title: "Scheduled Maintenance", difficulty: "Hard", type: "website",
+        instruction: "This page has the right address. Is everything else okay?",
+        hint: "Which field on a student sign-in page doesn't belong?",
         content: {
-          url: "paypal-secure-login.account-verify.xyz",
-          title: "PAYPAL",
-          urgent: "Your PayPal balance is at risk — act now",
-          flags: ["url", "urgent"]
+          tab: "State College – Sign in", url: "accounts.statecollege.edu/login", secure: true, theme: "#1a4fc4",
+          brand: "STATE COLLEGE", heading: "Student sign in",
+          banner: { tone: "info", text: "Scheduled maintenance: the portal will be offline Sunday, 2–4 AM." },
+          fields: [{ label: "Student ID", value: "02000123456" }, { label: "Password", pass: true }, { label: "Social Security Number", pass: true, hs: "ssn" }],
+          button: "Sign in", links: ["Forgot password?", "Contact IT"],
+          footer: "© 2026 State College · Privacy · Terms"
         },
-        explanations: {
-          url: "PayPal's official domain is paypal.com, not account-verify.xyz. This is clearly attempting to impersonate PayPal.",
-          urgent: "Claims about your balance being 'at risk' are designed to create panic. PayPal communicates security issues through official notifications, not urgent login pages."
+        hotspots: {
+          url: { flag: false, name: "Website address", safe: "'statecollege.edu' is the college's real domain, so this address is fine. A correct address plus a bad request is still a phish." },
+          lock: { flag: false, name: "Padlock", safe: "A padlock on a legitimate .edu address is expected." },
+          banner: { flag: false, name: "Maintenance notice", safe: "A calm notice with a specific off-hours window is normal. It doesn't pressure you to act." },
+          ssn: { flag: true, name: "Social Security Number field", why: "A college sign-in page has no reason to ask for your SSN. If a page requests it, leave." },
+          footer: { flag: false, name: "Footer", safe: "Ordinary footer text." }
         }
       },
       {
-        instruction: "Find all suspicious elements.",
-        indicators: 3,
-        hint: "Look for domain mismatches, urgency, and generic branding.",
-        type: "website",
+        title: "Checkout Alert", difficulty: "Hard", type: "website",
+        instruction: "Spot what's fishy about this checkout page.",
+        hint: "Read the domain slowly and watch the clock.",
         content: {
-          url: "google-account-verify.login-secure.net",
-          title: "GOOGLE ACCOUNT",
-          urgent: "Your Google account will be deleted in 1 hour",
-          flags: ["url", "urgent", "title"]
+          tab: "Amazon Checkout", url: "www.amaz0n-payments.com/checkout", secure: true, theme: "#f08804",
+          brand: "amazon", heading: "Confirm your payment",
+          banner: { tone: "warn", text: "Confirm payment within 10 minutes to keep your order." },
+          fields: [{ label: "Card number", value: "•••• •••• •••• 4417" }, { label: "Expiry", value: "08 / 28" }, { label: "CVV", pass: true }],
+          button: "Confirm payment", links: ["Return to cart", "Need help?"],
+          footer: "© 1996–2026 Amazon.com, Inc."
         },
-        explanations: {
-          url: "Google uses accounts.google.com for authentication, not login-secure.net. This domain is clearly not official.",
-          urgent: "Google would never delete accounts in 1 hour. This is an obvious fear tactic to make you act without thinking.",
-          title: "Using 'Google Account' with a fake domain is a classic phishing technique - the brand is real but the context is fake."
+        hotspots: {
+          url: { flag: true, name: "Website address", why: "'amaz0n-payments.com' uses a zero instead of the letter 'o' and isn't Amazon's domain." },
+          lock: { flag: false, name: "Padlock", safe: "The padlock doesn't tell you whose site you are on, so it isn't a signal here." },
+          banner: { flag: true, name: "Payment countdown", why: "Real stores don't force 10-minute payment windows. It's pressure to stop you looking closely." },
+          brand: { flag: false, name: "Logo", safe: "The logo is copied from the real site and doesn't help you decide." },
+          footer: { flag: false, name: "Footer", safe: "A copyright line is trivial to copy." }
         }
       }
     ]
@@ -308,137 +365,155 @@ const Missions = {
     name: "Social Engineering",
     scenarios: [
       {
+        title: "Update Required", difficulty: "Easy", type: "chat",
+        contact: { name: "IT Helpdesk", status: "Active now", color: "#1a4fc4" },
         instruction: "Tap any message that looks like a suspicious request.",
-        indicators: 2,
-        hint: "Support representatives will never ask for multi-factor security codes.",
-        type: "chat",
+        hint: "Support staff will never ask for multi-factor security codes.",
         content: [
-          { sender: "them", message: "Hi, I'm from IT. We're updating your account.", flag: "UNSOLICITED OUTREACH" },
+          { sender: "them", message: "Hi, I'm from IT. We're updating your account today.", flag: "UNSOLICITED OUTREACH" },
           { sender: "me", message: "Oh, I didn't know there was an update today. Do I need to do anything?" },
+          { sender: "them", message: "Nothing complicated. It only takes a minute." },
+          { sender: "me", message: "Okay, what do you need from me?" },
           { sender: "them", message: "Send me your verification code so I can complete the update.", flag: "CREDENTIAL HARVESTING" }
         ],
         explanations: {
-          "chat-0": "IT departments never initiate unsolicited contact asking for help with 'account updates'. They use official channels and scheduled maintenance windows.",
-          "chat-2": "Verification codes (MFA) are meant to protect your account. Sharing them gives attackers full access to your account."
-        }
+          "chat-0": "IT teams don't message you out of the blue about 'account updates'. They announce maintenance through official channels.",
+          "chat-4": "Verification codes (MFA) protect your account. Sharing one gives an attacker full access."
+        },
+        safeNotes: { "chat-2": "Friendly reassurance is common in scams, but this line makes no request, so it isn't the problem. The code request is." }
       },
       {
-        instruction: "Identify suspicious messages in this chat.",
-        indicators: 2,
-        hint: "Real support won't ask for passwords or codes via chat.",
-        type: "chat",
+        title: "Purchase Verification", difficulty: "Easy", type: "chat",
+        contact: { name: "Amazon Support", status: "Typically replies instantly", color: "#f08804" },
+        instruction: "Identify the suspicious messages in this chat.",
+        hint: "Real support won't ask for card numbers or passwords in a chat.",
         content: [
           { sender: "them", message: "Hello! This is Amazon Support. We need to verify your purchase.", flag: "IMPERSONATION" },
           { sender: "me", message: "I didn't make any recent purchases." },
+          { sender: "them", message: "No problem, I can help you cancel it right now." },
+          { sender: "me", message: "Okay, thanks." },
           { sender: "them", message: "Please provide your credit card number to cancel the transaction.", flag: "FINANCIAL REQUEST" }
         ],
         explanations: {
-          "chat-0": "Amazon Support would never contact you via chat about purchase verification. They use email and official account notifications.",
-          "chat-2": "No legitimate company asks for credit card numbers via chat. Financial transactions are handled through secure payment portals."
-        }
+          "chat-0": "Amazon doesn't start chats to 'verify purchases'. It uses official notifications in your account.",
+          "chat-4": "No real company asks for your full card number in a chat. Cancelling a charge never needs it."
+        },
+        safeNotes: { "chat-2": "Offering to help cancel isn't a request for anything. The harm comes in the next message." }
       },
       {
+        title: "The CEO's Request", difficulty: "Medium", type: "chat",
+        contact: { name: "Dana (CEO)", status: "Last seen recently", color: "#6d28d9" },
         instruction: "Find the social engineering attempts.",
-        indicators: 3,
-        hint: "Look for urgency, authority claims, and sensitive requests.",
-        type: "chat",
+        hint: "Look for urgency, authority claims, and requests to skip the usual checks.",
         content: [
-          { sender: "them", message: "URGENT: CEO needs your help with a wire transfer.", flag: "AUTHORITY ABUSE" },
+          { sender: "them", message: "Hi, are you at your desk?" },
+          { sender: "me", message: "Yes, what's up?" },
+          { sender: "them", message: "URGENT: I need your help with a wire transfer.", flag: "AUTHORITY ABUSE" },
           { sender: "me", message: "Really? What do you need?" },
-          { sender: "them", message: "I need you to transfer $5000 to this account immediately. It's confidential.", flag: "FINANCIAL URGENCY" },
+          { sender: "them", message: "Transfer $5,000 to this account immediately. It's confidential.", flag: "FINANCIAL URGENCY" },
           { sender: "me", message: "I should check with the CEO first." },
-          { sender: "them", message: "No time! He's in a meeting. Do it now or the company loses money!", flag: "PRESSURE TACTICS" }
+          { sender: "them", message: "No time! I'm in a meeting. Do it now or the company loses money!", flag: "PRESSURE TACTICS" }
         ],
         explanations: {
-          "chat-0": "CEO impersonation is a common business email compromise tactic. Real executives follow proper financial procedures.",
-          "chat-2": "Urgent wire transfer requests with confidentiality clauses are hallmarks of business email phishing scams.",
-          "chat-4": "Preventing you from verifying with the actual CEO is a clear manipulation tactic. Legitimate requests encourage verification."
-        }
+          "chat-2": "Impersonating an executive to demand a wire transfer is a well-known scam. Real leaders follow finance procedures.",
+          "chat-4": "Urgent, secret payment requests are the signature of business-email scams.",
+          "chat-6": "Stopping you from verifying is manipulation. Genuine requests welcome a quick check."
+        },
+        safeNotes: { "chat-0": "A casual 'are you at your desk?' is how many scams begin, but it asks for nothing yet." }
       },
       {
+        title: "A Friend in Need", difficulty: "Medium", type: "chat",
+        contact: { name: "Mika", status: "Last seen recently", color: "#be185d" },
         instruction: "Spot the suspicious communication.",
-        indicators: 2,
-        hint: "Watch for unusual requests from known contacts.",
-        type: "chat",
+        hint: "Watch for unusual requests, even from someone you know.",
         content: [
-          { sender: "them", message: "Hey! Can you send me your login credentials? I need to check something.", flag: "CREDENTIAL REQUEST" },
+          { sender: "them", message: "Hey! How was the exam?" },
+          { sender: "me", message: "Hey! It was fine, you?" },
+          { sender: "them", message: "Can you send me your login credentials? I need to check something.", flag: "CREDENTIAL REQUEST" },
           { sender: "me", message: "Why do you need my login?" },
-          { sender: "them", message: "Just trust me, it's important. I'll explain later.", flag: "EVIATION" }
+          { sender: "them", message: "Just trust me, it's important. I'll explain later.", flag: "EVASION" }
         ],
         explanations: {
-          "chat-0": "Friends and colleagues should never ask for your login credentials. This is a classic account compromise attempt.",
-          "chat-2": "Evasion and secrecy are major red flags. Legitimate requests can be explained immediately and don't require blind trust."
-        }
+          "chat-2": "A friend or colleague should never need your login. This is a classic sign their account has been taken over.",
+          "chat-4": "Evasion and secrecy are red flags. A genuine request can be explained immediately."
+        },
+        safeNotes: { "chat-0": "Friendly small talk is normal. It only turns suspicious when the request arrives." }
       },
       {
-        instruction: "Identify all social engineering red flags.",
-        indicators: 3,
-        hint: "Look for impersonation, urgency, and sensitive information requests.",
-        type: "chat",
+        title: "Payroll Pressure", difficulty: "Hard", type: "chat",
+        contact: { name: "HR Department", status: "Active now", color: "#0e7490" },
+        instruction: "Identify all the social engineering red flags.",
+        hint: "Look for impersonation, a made-up deadline, and threats.",
         content: [
-          { sender: "them", message: "This is HR. We need your SSN for payroll update.", flag: "IMPERSONATION" },
+          { sender: "them", message: "Good morning! Hope your week is going well." },
+          { sender: "them", message: "This is HR. We need your SSN for a payroll update.", flag: "IMPERSONATION" },
           { sender: "me", message: "Shouldn't this go through official channels?" },
           { sender: "them", message: "System is down, need it now or your paycheck will be delayed.", flag: "URGENCY" },
           { sender: "me", message: "I'll wait until the system is back up." },
-          { sender: "them", message: "This is your final warning. Send SSN immediately or face disciplinary action.", flag: "THREATS" }
+          { sender: "them", message: "This is your final warning. Send your SSN immediately or face disciplinary action.", flag: "THREATS" }
         ],
         explanations: {
-          "chat-0": "HR departments handle sensitive data through secure, official channels, not informal chat requests.",
-          "chat-2": "System failures are never used as excuses to bypass security procedures. This is a manipulation tactic.",
-          "chat-4": "Threats of disciplinary action are intimidation tactics designed to force compliance through fear."
-        }
+          "chat-1": "HR handles sensitive data through secure, official systems, never casual chat requests.",
+          "chat-3": "A 'system outage' is never a reason to bypass security procedures. It's a manipulation tactic.",
+          "chat-5": "Threatening you with consequences is intimidation meant to force compliance."
+        },
+        safeNotes: { "chat-0": "A friendly greeting asks for nothing. The requests that follow are the issue." }
       }
     ]
   }
 };
 
+// Work out how many real indicators each scenario has and prepare the feedback text.
+(function normalizeMissions() {
+  Object.values(Missions).forEach(m => m.scenarios.forEach(sc => {
+    if (sc.hotspots) {
+      sc.explanations = {}; sc.safeNotes = {};
+      Object.entries(sc.hotspots).forEach(([id, h]) => {
+        if (h.flag) sc.explanations[id] = h.why; else sc.safeNotes[id] = h.safe;
+      });
+      sc.indicators = Object.values(sc.hotspots).filter(h => h.flag).length;
+    } else if (sc.type === 'links') {
+      sc.indicators = sc.content.filter(l => l.suspicious).length;
+      sc.safeNotes = {};
+    } else if (sc.type === 'chat') {
+      sc.indicators = sc.content.filter(msg => msg.flag).length;
+      sc.safeNotes = sc.safeNotes || {};
+    }
+  }));
+})();
+
 // Assessment Questions
 const AssessmentQuestions = [
   {
-<<<<<<< HEAD
     visual: 'email-school',
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "You receive an email saying your school account will be deactivated within 24 hours. It contains a link asking you to verify your account.",
     question: "What indicators suggest this may be phishing?",
     options: ["Urgency", "Suspicious link", "Request for account verification", "All of the above"],
     correct: 3
   },
   {
-<<<<<<< HEAD
     visual: 'chat-it',
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "A message from 'IT Support' asks for your password to fix an account issue.",
     question: "What should you do?",
     options: ["Provide the password immediately", "Ignore the message", "Report to official IT support", "Share with a colleague"],
     correct: 2
   },
   {
-<<<<<<< HEAD
     visual: 'usb-drop',
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "You find a USB drive in the parking lot labeled 'Employee Salaries'.",
     question: "What is the safest action?",
     options: ["Plug it in to see contents", "Give it to security/IT", "Take it home", "Format it and use it"],
     correct: 1
   },
   {
-<<<<<<< HEAD
     visual: 'email-bank',
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "An email claims to be from your bank asking you to click a link to verify a transaction.",
     question: "What should you do?",
     options: ["Click the link immediately", "Call the bank using official number", "Reply with your account details", "Forward to friends"],
     correct: 1
   },
   {
-<<<<<<< HEAD
     visual: 'popup-scam',
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "A pop-up says your computer is infected and you need to call a number for help.",
     question: "What is this likely to be?",
     options: ["Legitimate security alert", "Tech support scam", "Windows update", "Antivirus notification"],
@@ -446,7 +521,6 @@ const AssessmentQuestions = [
   }
 ];
 
-<<<<<<< HEAD
 
 // ---------- Assessment scenario visuals (realistic mock-ups) ----------
 const SV_CREST = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5 20.5 5.7v5.8c0 5-3.4 8.7-8.5 10-5.1-1.3-8.5-5-8.5-10V5.7Z" fill="currentColor"/><path d="m8.2 12.1 2.7 2.7 5-5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -564,8 +638,6 @@ function renderAssessmentVisual(containerId, type) {
   el.style.display = type ? '' : 'none';
 }
 
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
 // Authentication Functions - moved to js/auth.js
 // handleLogin(), handleRegister(), handleLogout() are now in auth.js
 
@@ -801,10 +873,7 @@ function showPreAssessmentQuestion() {
   document.getElementById('pre-assessment-label').textContent = `PRE-ASSESSMENT - QUESTION ${AppState.preAssessmentIndex + 1}/${total}`;
   document.getElementById('pre-assessment-scenario').textContent = question.scenario;
   document.getElementById('pre-assessment-question').textContent = question.question;
-<<<<<<< HEAD
   renderAssessmentVisual('pre-assessment-visual', question.visual);
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
 
   // Build progress bar segments
   const progressContainer = document.getElementById('pre-assessment-progress');
@@ -1064,6 +1133,7 @@ function setHubTab(tab) {
 
 function startMission(missionId) {
   AppState.currentMission = missionId;
+  AppState.streak = 0;
   const mission = AppState.missionProgress[missionId];
   
   // Find the first uncompleted scenario
@@ -1079,257 +1149,274 @@ function startMission(missionId) {
 }
 
 function showMissionScenario() {
+  stopChatReveal();
   const mission = Missions[AppState.currentMission];
   const scenario = mission.scenarios[AppState.currentScenario];
-  
+  const n = AppState.currentScenario + 1;
+
   document.getElementById('mission-label').textContent = `MISSION 0${AppState.currentMission} · ${mission.name.toUpperCase()}`;
-  document.getElementById('scenario-label').textContent = `Scenario ${AppState.currentScenario + 1}/5`;
+  document.getElementById('scenario-label').textContent = scenario.title ? `Scenario ${n}/5 · ${scenario.title}` : `Scenario ${n}/5`;
   document.getElementById('mission-instruction').textContent = scenario.instruction;
-  document.getElementById('mission-hint').textContent = scenario.hint;
-  
+  const hintEl = document.getElementById('mission-hint');
+  hintEl.textContent = scenario.hint;
+  hintEl.style.display = 'none';
+  renderScenarioChips(scenario);
+
   AppState.selectedIndicators = [];
   updateSelectedCount();
-  
+
   const contentContainer = document.getElementById('mission-content');
   contentContainer.innerHTML = '';
-  
-  if (scenario.type === 'email') {
-    renderEmailScenario(scenario.content, contentContainer);
-  } else if (scenario.type === 'links') {
-    renderLinksScenario(scenario.content, contentContainer);
-  } else if (scenario.type === 'website') {
-    renderWebsiteScenario(scenario.content, contentContainer);
-  } else if (scenario.type === 'chat') {
-    renderChatScenario(scenario.content, contentContainer);
-  }
-  
+  bindHotspotClicks(contentContainer);
+
+  if (scenario.type === 'email') renderEmailScenario(scenario, contentContainer);
+  else if (scenario.type === 'links') renderLinksScenario(scenario, contentContainer);
+  else if (scenario.type === 'website') renderWebsiteScenario(scenario, contentContainer);
+  else if (scenario.type === 'chat') renderChatScenario(scenario, contentContainer);
+
+  contentContainer.scrollTop = 0;
   showScreen('mission-gameplay');
 }
 
-function renderEmailScenario(content, container) {
-  const emailSim = document.createElement('div');
-  emailSim.className = 'email-sim';
-  
-  const flags = content.flags || [];
-  
-  emailSim.innerHTML = `
-    <div class="email-head">
-      <div class="email-row" data-indicator="from">
-        <b>From:</b> ${content.from}
-      </div>
-      <div class="email-row"><b>To:</b> ${content.to}</div>
-      <div class="email-row" data-indicator="subject">
-        <b>Subject:</b> ${content.subject}
-      </div>
-    </div>
-    <div class="email-body">
-      ${content.body}
-      <span class="email-cta" data-indicator="cta">${content.cta}</span>
-    </div>
-  `;
-  
-  container.appendChild(emailSim);
-  
-  // Add click handlers for all elements that could be indicators
-  const fromRow = emailSim.querySelector('.email-row[data-indicator="from"]');
-  if (fromRow) {
-    fromRow.style.cursor = 'pointer';
-    fromRow.onclick = () => toggleIndicator('from');
-  }
-  
-  const subjectRow = emailSim.querySelector('.email-row[data-indicator="subject"]');
-  if (subjectRow) {
-    subjectRow.style.cursor = 'pointer';
-    subjectRow.onclick = () => toggleIndicator('subject');
-  }
-  
-  const cta = emailSim.querySelector('.email-cta');
-  if (cta) {
-    cta.onclick = () => toggleIndicator('cta');
-  }
+function renderScenarioChips(scenario) {
+  const el = document.getElementById('scenario-chips');
+  if (!el) return;
+  const cur = AppState.currentScenario;
+  const diff = scenario.difficulty || 'Easy';
+  const steps = [0, 1, 2, 3, 4].map(i => `<i class="${i < cur ? 'done' : i === cur ? 'now' : ''}"></i>`).join('');
+  const streak = (AppState.streak || 0) >= 2 ? `<span class="chip chip-streak">${icon('bolt')} Streak ×${AppState.streak}</span>` : '';
+  el.innerHTML = `${streak}<span class="chip chip-${diff.toLowerCase()}">${diff}</span><div class="steps">${steps}</div>`;
 }
 
-function renderLinksScenario(links, container) {
-  const linkList = document.createElement('div');
-  linkList.className = 'link-list';
-  
-  links.forEach((link, index) => {
-    const linkRow = document.createElement('div');
-    linkRow.className = 'link-row';
-    linkRow.dataset.index = index;
-    linkRow.innerHTML = `
-      <span class="link-icon">${icon('circle')}</span>
-      <code>${link.url}</code>
-    `;
-    linkRow.onclick = () => toggleLinkIndicator(index);
-    linkList.appendChild(linkRow);
+// One delegated click handler for every tappable element ("hotspot")
+function bindHotspotClicks(container) {
+  if (container._hsBound) return;
+  container._hsBound = true;
+  container.addEventListener('click', e => {
+    const el = e.target.closest('.hs');
+    if (el && !el.classList.contains('locked') && !el.classList.contains('pending')) toggleHotspot(el.dataset.hs, el);
   });
-  
-  container.appendChild(linkList);
-}
-
-function renderWebsiteScenario(content, container) {
-  const flags = content.flags || [];
-  
-  const siteFrame = document.createElement('div');
-  siteFrame.className = 'fake-site-frame';
-  
-  siteFrame.innerHTML = `
-    <div class="browser-bar">
-      <div class="dots"><i></i><i></i><i></i></div>
-      <div class="url-pill" data-indicator="url">
-        ${content.url}
-      </div>
-    </div>
-    <div class="fake-login">
-      <div class="lock-title" data-indicator="title">${icon('shield')} ${content.title}</div>
-      <div class="urgent" data-indicator="urgent">"${content.urgent}"</div>
-      <div class="fields">
-        <div class="field-label">EMAIL ADDRESS</div>
-        <div class="input-row"><input value="user@example.com" readonly></div>
-        <div class="field-label">PASSWORD</div>
-        <div class="input-row"><input value="••••••••••••" readonly></div>
-      </div>
-      <button class="btn btn-violet" style="margin-top:18px; width:100%; max-width:360px;">Verify & continue</button>
-    </div>
-  `;
-  
-  container.appendChild(siteFrame);
-  
-  // Add click handlers for all potential indicators
-  const urlPill = siteFrame.querySelector('.url-pill');
-  if (urlPill) {
-    urlPill.style.cursor = 'pointer';
-    urlPill.onclick = () => toggleIndicator('url');
-  }
-  
-  const urgent = siteFrame.querySelector('.urgent');
-  if (urgent) {
-    urgent.style.cursor = 'pointer';
-    urgent.onclick = () => toggleIndicator('urgent');
-  }
-  
-  const title = siteFrame.querySelector('.lock-title');
-  if (title) {
-    title.style.cursor = 'pointer';
-    title.onclick = () => toggleIndicator('title');
-  }
-}
-
-function renderChatScenario(messages, container) {
-  const chatThread = document.createElement('div');
-  chatThread.className = 'chat-thread';
-  
-  messages.forEach((msg, index) => {
-    const msgRow = document.createElement('div');
-    msgRow.className = `msg-row ${msg.sender}`;
-    
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.innerHTML = `"${msg.message}"`;
-    
-    // Make all messages from "them" clickable for potential flagging
-    if (msg.sender === 'them') {
-      bubble.style.cursor = 'pointer';
-      bubble.onclick = () => toggleChatIndicator(index);
-    }
-    
-    msgRow.appendChild(bubble);
-    chatThread.appendChild(msgRow);
+  container.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-link]');
+    const bar = document.getElementById('mx-status');
+    if (bar && el) bar.innerHTML = '<span>Link goes to:</span> ' + el.dataset.link;
   });
-  
-  container.appendChild(chatThread);
+  container.addEventListener('mouseout', e => {
+    const el = e.target.closest('[data-link]');
+    const bar = document.getElementById('mx-status');
+    if (bar && el) bar.innerHTML = '<span>Hover over a link to see where it goes</span>';
+  });
 }
 
-function toggleIndicator(indicator) {
-  const index = AppState.selectedIndicators.indexOf(indicator);
-  if (index > -1) {
-    AppState.selectedIndicators.splice(index, 1);
-  } else {
-    AppState.selectedIndicators.push(indicator);
-  }
-  
+function toggleHotspot(id, el) {
+  const i = AppState.selectedIndicators.indexOf(id);
+  if (i > -1) AppState.selectedIndicators.splice(i, 1);
+  else AppState.selectedIndicators.push(id);
+  el.classList.toggle('selected', AppState.selectedIndicators.includes(id));
   updateSelectedCount();
-  
-  // Update visual selection state
-  if (AppState.currentMission) {
-    const mission = Missions[AppState.currentMission];
-    const scenario = mission.scenarios[AppState.currentScenario];
-    
-    if (scenario.type === 'email') {
-      const emailSim = document.querySelector('.email-sim');
-      if (emailSim) {
-        const fromRow = emailSim.querySelector('.email-row[data-indicator="from"]');
-        const subjectRow = emailSim.querySelector('.email-row[data-indicator="subject"]');
-        const cta = emailSim.querySelector('.email-cta');
-        
-        if (indicator === 'from' && fromRow) {
-          fromRow.classList.toggle('selected', AppState.selectedIndicators.includes('from'));
-        }
-        if (indicator === 'subject' && subjectRow) {
-          subjectRow.classList.toggle('selected', AppState.selectedIndicators.includes('subject'));
-        }
-        if (indicator === 'cta' && cta) {
-          cta.classList.toggle('selected', AppState.selectedIndicators.includes('cta'));
-        }
-      }
-    } else if (scenario.type === 'website') {
-      const siteFrame = document.querySelector('.fake-site-frame');
-      if (siteFrame) {
-        const urlPill = siteFrame.querySelector('.url-pill');
-        const urgent = siteFrame.querySelector('.urgent');
-        const title = siteFrame.querySelector('.lock-title');
-        
-        if (indicator === 'url' && urlPill) {
-          urlPill.classList.toggle('selected', AppState.selectedIndicators.includes('url'));
-        }
-        if (indicator === 'urgent' && urgent) {
-          urgent.classList.toggle('selected', AppState.selectedIndicators.includes('urgent'));
-        }
-        if (indicator === 'title' && title) {
-          title.classList.toggle('selected', AppState.selectedIndicators.includes('title'));
-        }
-      }
+  if (el.dataset.link) {
+    const bar = document.getElementById('mx-status');
+    if (bar) bar.innerHTML = '<span>Link goes to:</span> ' + el.dataset.link;
+  }
+}
+
+// Shows the registrable domain in bold, the way modern browsers do
+function urlHtml(raw, defaultScheme) {
+  let s = String(raw).trim(), scheme = '';
+  const m = s.match(/^(https?:\/\/)/i);
+  if (m) { scheme = m[1]; s = s.slice(scheme.length); } else { scheme = defaultScheme || 'https://'; }
+  const slash = s.indexOf('/');
+  const host = slash > -1 ? s.slice(0, slash) : s;
+  const path = slash > -1 ? s.slice(slash) : '';
+  const labels = host.split('.');
+  let keep = 2;
+  if (labels.length >= 3 && labels[labels.length - 1].length === 2 && labels[labels.length - 2].length <= 3) keep = 3;
+  const dom = labels.slice(-keep).join('.');
+  const sub = labels.slice(0, -keep).join('.');
+  return `<span class="u-dim">${scheme}${sub ? sub + '.' : ''}</span><b class="u-dom">${dom}</b><span class="u-dim">${path}</span>`;
+}
+
+const BRAND_INFO = {
+  facebook: { title: "Facebook – Log In or Sign Up", color: "#1877f2" },
+  microsoft: { title: "Sign in to your Microsoft account", color: "#0f6cbd" },
+  amazon: { title: "Amazon Sign-In", color: "#f08804" },
+  apple: { title: "Manage your Apple ID", color: "#555b66" },
+  netflix: { title: "Netflix – Sign In", color: "#e50914" },
+  boa: { title: "Bank of America | Online Banking", color: "#c8102e" },
+  chase: { title: "Chase Online – Sign In", color: "#117aca" },
+  linkedin: { title: "LinkedIn Login, Sign in", color: "#0a66c2" },
+  twitter: { title: "X / Twitter – Log in", color: "#111827" },
+  instagram: { title: "Instagram • Log in", color: "#c13584" },
+  paypal: { title: "PayPal: Log in to your account", color: "#003087" },
+  ebay: { title: "eBay – Sign in", color: "#e53238" }
+};
+
+/* ---------------- EMAIL ---------------- */
+function renderEmailScenario(scenario, container) {
+  const e = scenario.email;
+  const H = id => (scenario.hotspots[id] ? ` hs" data-hs="${id}` : '');
+  const bar = '<div class="sv-bar"><span class="sv-dots"><i></i><i></i><i></i></span><span class="sv-bar-title">Inbox</span></div>';
+  const paragraphs = (e.body || []).map(p => `<p class="${p.hs ? 'mx-p' + H(p.hs) : 'mx-p'}">${p.text}</p>`).join('');
+  const attachment = e.attachment
+    ? `<div class="mx-attach${H('attach')}">${icon('file')}<span><b>${e.attachment.name}</b><small>${e.attachment.size}</small></span></div>` : '';
+  const button = e.button
+    ? `<span class="sv-cta mx-cta${H('cta')}" data-link="${e.button.url}" style="background:#1a4fc4">${e.button.text}</span>` : '';
+  const replyTo = e.replyTo ? `<div class="mx-line sv-sub${H('replyto')}">Reply-To: ${e.replyTo}</div>` : '';
+  const footer = e.footer ? `<div class="mx-foot${H('footer')}">${e.footer}</div>` : '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'sv-win mx-mail';
+  wrap.innerHTML = `
+    ${bar}
+    <div class="sv-mail-head">
+      <div class="sv-subject${H('subject')}">${e.subject}</div>
+      <div class="sv-sender">
+        <div class="sv-avatar" style="background:#5f6b7a">${e.fromName.charAt(0)}</div>
+        <div class="mx-from">
+          <div class="mx-line${H('from')}"><span class="sv-name">${e.fromName}</span> <span class="sv-addr">&lt;${e.fromAddr}&gt;</span></div>
+          ${replyTo}
+          <div class="sv-sub">to ${e.to} · ${e.time}</div>
+        </div>
+      </div>
+    </div>
+    <div class="sv-mail-body">
+      <p class="mx-p${H('greeting')}">${e.greeting}</p>
+      ${paragraphs}
+      ${attachment}
+      ${button}
+      ${e.signature ? `<p class="mx-sig${H('signature')}">${e.signature}</p>` : ''}
+      ${footer}
+    </div>
+    ${e.button ? '<div class="sv-status" id="mx-status"><span>Hover over a link to see where it goes</span></div>' : ''}`;
+  container.appendChild(wrap);
+}
+
+/* ---------------- LINKS ---------------- */
+function renderLinksScenario(scenario, container) {
+  if (scenario.context) {
+    const ctx = document.createElement('div');
+    ctx.className = 'mx-context';
+    ctx.innerHTML = `<span class="mx-context-tag">FOUND IN</span> ${scenario.context}`;
+    container.appendChild(ctx);
+  }
+  const list = document.createElement('div');
+  list.className = 'link-list';
+  scenario.content.forEach((link, index) => {
+    const info = BRAND_INFO[link.brand] || { title: link.url, color: '#6b7280' };
+    const secure = /^https:\/\//i.test(link.url);
+    const card = document.createElement('div');
+    card.className = 'link-card hs';
+    card.dataset.hs = `link-${index}`;
+    card.dataset.index = index;
+    card.innerHTML = `
+      <div class="lc-fav" style="background:${info.color}">${info.title.charAt(0)}</div>
+      <div class="lc-main">
+        <div class="lc-title">${info.title}</div>
+        <div class="lc-url"><span class="lc-sec ${secure ? 'ok' : 'bad'}">${icon(secure ? 'lock' : 'alert')}</span>${urlHtml(link.url)}</div>
+        <div class="lc-verdict"></div>
+      </div>
+      <span class="link-icon">${icon('circle')}</span>`;
+    list.appendChild(card);
+  });
+  container.appendChild(list);
+}
+
+/* ---------------- WEBSITE ---------------- */
+function renderWebsiteScenario(scenario, container) {
+  const c = scenario.content;
+  const H = id => (scenario.hotspots[id] ? ` hs" data-hs="${id}` : '');
+  const secure = c.secure !== false;
+  const fields = (c.fields || []).map(f => {
+    if (f.check) return `<div class="mx-check${f.hs ? H(f.hs) : ''}"><span class="mx-box"></span>${f.label}</div>`;
+    const val = f.pass ? '<span class="mx-dots-pw">••••••••••</span>' : (f.value || '');
+    return `<div class="mx-field${f.hs ? H(f.hs) : ''}"><label>${f.label}</label><div class="mx-input">${val}</div></div>`;
+  }).join('');
+  const banner = c.banner ? `<div class="mx-banner ${c.banner.tone}${H('banner')}">${c.banner.text}</div>` : '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'sv-win mx-site';
+  wrap.innerHTML = `
+    <div class="mx-tabs"><span class="sv-dots"><i></i><i></i><i></i></span><span class="mx-tab">${c.tab || c.brand}</span></div>
+    <div class="mx-toolbar">
+      <span class="mx-nav"><i>‹</i><i>›</i><i>↻</i></span>
+      <div class="mx-addr">
+        <span class="mx-lock ${secure ? 'ok' : 'bad'}${H('lock')}">${icon(secure ? 'lock' : 'alert')}${secure ? 'Secure' : 'Not secure'}</span>
+        <span class="mx-urltext${H('url')}">${urlHtml(c.url, secure ? 'https://' : 'http://')}</span>
+      </div>
+    </div>
+    <div class="mx-page" style="--brand:${c.theme || '#1a4fc4'}">
+      <div class="mx-pagehead"><span class="mx-logo${H('brand')}">${c.brand}</span></div>
+      <div class="mx-card">
+        ${banner}
+        <div class="mx-h">${c.heading || 'Sign in'}</div>
+        ${fields}
+        <div class="mx-btn${H('button')}">${c.button || 'Sign in'}</div>
+        <div class="mx-links">${(c.links || []).join(' · ')}</div>
+      </div>
+      <div class="mx-footer${H('footer')}">${c.footer || ''}</div>
+    </div>`;
+  container.appendChild(wrap);
+}
+
+/* ---------------- CHAT ---------------- */
+function renderChatScenario(scenario, container) {
+  const contact = scenario.contact || { name: 'Unknown', status: '', color: '#6b7280' };
+  const wrap = document.createElement('div');
+  wrap.className = 'sv-win mx-chat';
+  let minute = 14;
+  const rows = scenario.content.map((msg, index) => {
+    const them = msg.sender === 'them';
+    const time = `9:${String(minute).padStart(2, '0')} AM`;
+    minute += 1;
+    const attrs = them ? ` hs" data-hs="chat-${index}` : '';
+    return `<div class="mx-msg-row ${msg.sender} pending"><div class="bubble mx-bubble${attrs}">${msg.message}</div><div class="mx-time">${time}</div></div>`;
+  }).join('');
+  wrap.innerHTML = `
+    <div class="mx-chat-head">
+      <div class="sv-avatar" style="background:${contact.color}">${contact.name.charAt(0)}</div>
+      <div><div class="sv-name">${contact.name}</div><div class="sv-sub">${contact.status || ''}</div></div>
+    </div>
+    <div class="mx-chat-body" id="mx-chat-body"><div class="sv-notice">Today</div>${rows}</div>
+    <div class="sv-input"><span>Type a message&hellip;</span><b class="sv-send">&#10148;</b></div>`;
+  container.appendChild(wrap);
+  revealChat(wrap.querySelectorAll('.mx-msg-row'));
+}
+
+function stopChatReveal() {
+  (AppState.chatTimers || []).forEach(clearTimeout);
+  AppState.chatTimers = [];
+}
+
+function finishChatReveal() {
+  stopChatReveal();
+  document.querySelectorAll('.mx-msg-row.pending').forEach(r => r.classList.remove('pending'));
+  document.querySelectorAll('.mx-typing-row').forEach(r => r.remove());
+}
+
+function revealChat(rows) {
+  AppState.chatTimers = [];
+  let t = 350;
+  rows.forEach(row => {
+    const them = row.classList.contains('them');
+    if (them) {
+      AppState.chatTimers.push(setTimeout(() => {
+        const typing = document.createElement('div');
+        typing.className = 'mx-msg-row them mx-typing-row';
+        typing.innerHTML = '<div class="bubble mx-typing"><i></i><i></i><i></i></div>';
+        row.before(typing);
+        typing.scrollIntoView({ block: 'nearest' });
+      }, t));
+      t += 850;
+    } else {
+      t += 450;
     }
-  }
-}
-
-function toggleLinkIndicator(index, isSuspicious) {
-  const key = `link-${index}`;
-  const existingIndex = AppState.selectedIndicators.indexOf(key);
-  
-  if (existingIndex > -1) {
-    AppState.selectedIndicators.splice(existingIndex, 1);
-  } else {
-    AppState.selectedIndicators.push(key);
-  }
-  
-  updateSelectedCount();
-  
-  // Update visual selection state
-  const linkRows = document.querySelectorAll('.link-row');
-  if (linkRows[index]) {
-    linkRows[index].classList.toggle('selected', AppState.selectedIndicators.includes(key));
-  }
-}
-
-function toggleChatIndicator(index) {
-  const key = `chat-${index}`;
-  const existingIndex = AppState.selectedIndicators.indexOf(key);
-  
-  if (existingIndex > -1) {
-    AppState.selectedIndicators.splice(existingIndex, 1);
-  } else {
-    AppState.selectedIndicators.push(key);
-  }
-  
-  updateSelectedCount();
-  
-  // Update visual selection state
-  const bubbles = document.querySelectorAll('.bubble');
-  if (bubbles[index]) {
-    bubbles[index].classList.toggle('selected', AppState.selectedIndicators.includes(key));
-  }
+    AppState.chatTimers.push(setTimeout(() => {
+      const prev = row.previousElementSibling;
+      if (prev && prev.classList.contains('mx-typing-row')) prev.remove();
+      row.classList.remove('pending');
+      row.scrollIntoView({ block: 'nearest' });
+    }, t));
+  });
 }
 
 function updateSelectedCount() {
@@ -1396,6 +1483,9 @@ function submitMissionFindings() {
   
   // Cap score at maximum possible (200)
   AppState.score = Math.min(AppState.score, 200);
+
+  // Streak of consecutive perfect scenarios (this session only)
+  AppState.streak = (foundCorrect === totalCorrect && incorrectSelections === 0) ? (AppState.streak || 0) + 1 : 0;
   
   // Apply visual feedback to show correct/incorrect answers
   applyVisualFeedback(scenario, correctIndicators);
@@ -1407,95 +1497,38 @@ function submitMissionFindings() {
 }
 
 function applyVisualFeedback(scenario, correctIndicators) {
+  finishChatReveal();
+  document.querySelectorAll('#mission-content .hs').forEach(el => {
+    const id = el.dataset.hs;
+    if (correctIndicators.includes(id)) el.classList.add('correct');
+    else if (AppState.selectedIndicators.includes(id)) el.classList.add('incorrect');
+    el.classList.add('locked');
+  });
   if (scenario.type === 'links') {
-    const linkRows = document.querySelectorAll('.link-row');
-    linkRows.forEach((row, index) => {
+    document.querySelectorAll('.link-card').forEach((card, index) => {
       const key = `link-${index}`;
-      const icon = row.querySelector('.link-icon');
-      
+      const ic = card.querySelector('.link-icon');
+      const verdict = card.querySelector('.lc-verdict');
       if (correctIndicators.includes(key)) {
-        row.classList.add('correct');
-        icon.innerHTML = window.icon('check');
-      } else if (AppState.selectedIndicators.includes(key)) {
-        row.classList.add('incorrect');
-        icon.innerHTML = window.icon('x');
+        ic.innerHTML = window.icon('check');
+        verdict.textContent = 'Lookalike domain';
+        verdict.className = 'lc-verdict bad';
       } else {
-        icon.innerHTML = window.icon('circle');
-      }
-    });
-  } else if (scenario.type === 'email') {
-    const emailSim = document.querySelector('.email-sim');
-    if (emailSim) {
-      // Apply feedback to email elements
-      const fromRow = emailSim.querySelector('.email-row[data-indicator="from"]');
-      const subjectRow = emailSim.querySelector('.email-row[data-indicator="subject"]');
-      const cta = emailSim.querySelector('.email-cta');
-      
-      if (fromRow && correctIndicators.includes('from')) {
-        fromRow.classList.add('correct');
-      } else if (fromRow && AppState.selectedIndicators.includes('from')) {
-        fromRow.classList.add('incorrect');
-      }
-      
-      if (subjectRow && correctIndicators.includes('subject')) {
-        subjectRow.classList.add('correct');
-      } else if (subjectRow && AppState.selectedIndicators.includes('subject')) {
-        subjectRow.classList.add('incorrect');
-      }
-      
-      if (cta && correctIndicators.includes('cta')) {
-        cta.classList.add('correct');
-      } else if (cta && AppState.selectedIndicators.includes('cta')) {
-        cta.classList.add('incorrect');
-      }
-    }
-  } else if (scenario.type === 'website') {
-    const siteFrame = document.querySelector('.fake-site-frame');
-    if (siteFrame) {
-      const urlPill = siteFrame.querySelector('.url-pill');
-      const urgent = siteFrame.querySelector('.urgent');
-      const title = siteFrame.querySelector('.lock-title');
-      
-      if (urlPill && correctIndicators.includes('url')) {
-        urlPill.classList.add('correct');
-      } else if (urlPill && AppState.selectedIndicators.includes('url')) {
-        urlPill.classList.add('incorrect');
-      }
-      
-      if (urgent && correctIndicators.includes('urgent')) {
-        urgent.classList.add('correct');
-      } else if (urgent && AppState.selectedIndicators.includes('urgent')) {
-        urgent.classList.add('incorrect');
-      }
-      
-      if (title && correctIndicators.includes('title')) {
-        title.classList.add('correct');
-      } else if (title && AppState.selectedIndicators.includes('title')) {
-        title.classList.add('incorrect');
-      }
-    }
-  } else if (scenario.type === 'chat') {
-    const bubbles = document.querySelectorAll('.bubble');
-    bubbles.forEach((bubble, index) => {
-      const key = `chat-${index}`;
-      if (correctIndicators.includes(key)) {
-        bubble.classList.add('correct');
-      } else if (AppState.selectedIndicators.includes(key)) {
-        bubble.classList.add('incorrect');
+        ic.innerHTML = AppState.selectedIndicators.includes(key) ? window.icon('x') : window.icon('circle');
+        verdict.textContent = 'Official site';
+        verdict.className = 'lc-verdict ok';
       }
     });
   }
 }
 
 function getCorrectIndicators(scenario) {
-  if (scenario.type === 'email') {
-    return scenario.content.flags || [];
+  if (scenario.hotspots) {
+    return Object.keys(scenario.hotspots).filter(id => scenario.hotspots[id].flag);
   } else if (scenario.type === 'links') {
     return scenario.content
       .map((link, index) => link.suspicious ? `link-${index}` : null)
       .filter(Boolean);
-  } else if (scenario.type === 'website') {
-    return scenario.content.flags || [];
   } else if (scenario.type === 'chat') {
     return scenario.content
       .map((msg, index) => msg.flag ? `chat-${index}` : null)
@@ -1505,89 +1538,86 @@ function getCorrectIndicators(scenario) {
 }
 
 function getIndicatorName(indicator, scenario) {
-  if (scenario.type === 'email') {
-    const names = {
-      'from': 'Sender Address',
-      'subject': 'Subject Line',
-      'cta': 'Call-to-Action Link'
-    };
-    return names[indicator] || indicator;
+  if (scenario.hotspots && scenario.hotspots[indicator]) {
+    return scenario.hotspots[indicator].name;
   } else if (scenario.type === 'links') {
     const linkIndex = parseInt(indicator.split('-')[1]);
-    return `Suspicious URL #${linkIndex + 1}`;
-  } else if (scenario.type === 'website') {
-    const names = {
-      'url': 'Website URL',
-      'urgent': 'Urgency Message',
-      'title': 'Page Title'
-    };
-    return names[indicator] || indicator;
+    const real = scenario.content[linkIndex] && scenario.content[linkIndex].suspicious;
+    return `${real ? 'Suspicious URL' : 'URL'} #${linkIndex + 1}`;
   } else if (scenario.type === 'chat') {
     const chatIndex = parseInt(indicator.split('-')[1]);
     const message = scenario.content[chatIndex];
-    return message ? message.flag : `Suspicious Message #${chatIndex + 1}`;
+    return message && message.flag ? message.flag : `Message #${chatIndex + 1}`;
   }
   return indicator;
 }
 
 function showFeedback(points, found, total, incorrect, scenario) {
+  const grade = document.getElementById('feedback-grade');
+  const streakEl = document.getElementById('feedback-streak');
+  let gradeText, gradeClass;
+  if (found === total && incorrect === 0) { gradeText = 'PERFECT'; gradeClass = 'perfect'; }
+  else if (found === total) { gradeText = 'ALL FOUND'; gradeClass = 'good'; }
+  else if (found > 0) { gradeText = 'GOOD START'; gradeClass = 'ok'; }
+  else { gradeText = 'KEEP LOOKING'; gradeClass = 'miss'; }
+  if (grade) { grade.textContent = gradeText; grade.className = 'grade ' + gradeClass; }
+  if (streakEl) {
+    const s = AppState.streak || 0;
+    streakEl.innerHTML = s >= 2 ? `${icon('bolt')} Streak ×${s}. Keep it going!` : '';
+    streakEl.style.display = s >= 2 ? 'flex' : 'none';
+  }
+
   document.getElementById('feedback-points').textContent = points > 0 ? `+${points} points` : `${points} points`;
-  document.getElementById('feedback-summary').textContent = `${found} of ${total} indicators found${incorrect > 0 ? `, ${incorrect} incorrect selections` : ''}.`;
-  
+  document.getElementById('feedback-summary').textContent = `${found} of ${total} indicators found${incorrect > 0 ? `, ${incorrect} incorrect selection${incorrect > 1 ? 's' : ''}` : ''}.`;
+
   const feedbackItems = document.getElementById('feedback-items');
   feedbackItems.innerHTML = '';
-  
+
   const correctIndicators = getCorrectIndicators(scenario);
   const explanations = scenario.explanations || {};
-  
-  // Show detailed feedback for each indicator
-  correctIndicators.forEach((indicator, index) => {
+  const safeNotes = scenario.safeNotes || {};
+
+  correctIndicators.forEach(indicator => {
     const wasFound = AppState.selectedIndicators.includes(indicator);
     const explanation = explanations[indicator] || "This is a phishing indicator that attackers commonly use.";
-    
-    const feedbackItem = document.createElement('div');
-    feedbackItem.className = 'feedback-item';
-    feedbackItem.innerHTML = `
+    const item = document.createElement('div');
+    item.className = 'feedback-item';
+    item.innerHTML = `
       <div class="fdot ${wasFound ? 'good' : 'bad'}"></div>
       <div>
-        <h4>${wasFound ? icon('check','ic-inline') + 'CORRECTLY IDENTIFIED' : icon('x','ic-inline') + 'MISSED'}: ${getIndicatorName(indicator, scenario)}</h4>
+        <h4>${wasFound ? icon('check', 'ic-inline') + 'CORRECTLY IDENTIFIED' : icon('x', 'ic-inline') + 'MISSED'}: ${getIndicatorName(indicator, scenario)}</h4>
         <p>${explanation}</p>
-      </div>
-    `;
-    feedbackItems.appendChild(feedbackItem);
+      </div>`;
+    feedbackItems.appendChild(item);
   });
-  
-  // Show feedback for incorrectly selected indicators
+
   AppState.selectedIndicators.forEach(indicator => {
     if (!correctIndicators.includes(indicator)) {
-      const wrongItem = document.createElement('div');
-      wrongItem.className = 'feedback-item';
-      wrongItem.innerHTML = `
+      const note = safeNotes[indicator] || "This one is legitimate. Be careful not to flag normal elements.";
+      const item = document.createElement('div');
+      item.className = 'feedback-item';
+      item.innerHTML = `
         <div class="fdot bad"></div>
         <div>
-          <h4>${icon('x','ic-inline')}INCORRECTLY SELECTED: ${getIndicatorName(indicator, scenario)}</h4>
-          <p>This is not actually a phishing indicator. Be careful not to flag legitimate elements.</p>
-        </div>
-      `;
-      feedbackItems.appendChild(wrongItem);
+          <h4>${icon('x', 'ic-inline')}NOT A RED FLAG: ${getIndicatorName(indicator, scenario)}</h4>
+          <p>${note}</p>
+        </div>`;
+      feedbackItems.appendChild(item);
     }
   });
-  
-  // Add summary if no indicators were found
+
   if (found === 0 && incorrect === 0) {
-    const summaryItem = document.createElement('div');
-    summaryItem.className = 'feedback-item';
-    summaryItem.innerHTML = `
+    const item = document.createElement('div');
+    item.className = 'feedback-item';
+    item.innerHTML = `
       <div class="fdot bad"></div>
       <div>
         <h4>NO INDICATORS FOUND</h4>
-        <p>You didn't identify any phishing indicators. Review the hints and look for suspicious elements like fake domains, urgent language, and unusual requests.</p>
-      </div>
-    `;
-    feedbackItems.appendChild(summaryItem);
+        <p>You didn't flag anything this time. Look closely at addresses, requests, and anything that pressures you to act fast.</p>
+      </div>`;
+    feedbackItems.appendChild(item);
   }
-  
-  // Update next button behavior
+
   const nextBtn = document.getElementById('feedback-next-btn');
   if (AppState.currentScenario < 4) {
     nextBtn.innerHTML = 'Next scenario ' + icon('arrow');
@@ -1596,7 +1626,7 @@ function showFeedback(points, found, total, incorrect, scenario) {
     nextBtn.innerHTML = 'Complete mission ' + icon('flag');
     nextBtn.onclick = completeMission;
   }
-  
+
   showScreen('feedback');
 }
 
@@ -1661,10 +1691,7 @@ function showPostAssessmentQuestion() {
   document.getElementById('post-assessment-label').textContent = `POST-ASSESSMENT - QUESTION ${AppState.postAssessmentIndex + 1}/${total}`;
   document.getElementById('post-assessment-scenario').textContent = question.scenario;
   document.getElementById('post-assessment-question').textContent = question.question;
-<<<<<<< HEAD
   renderAssessmentVisual('post-assessment-visual', question.visual);
-=======
->>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
 
   // Build progress bar segments
   const progressContainer = document.getElementById('post-assessment-progress');
