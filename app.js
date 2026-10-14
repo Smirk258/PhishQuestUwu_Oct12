@@ -395,35 +395,50 @@ const Missions = {
 // Assessment Questions
 const AssessmentQuestions = [
   {
+<<<<<<< HEAD
     visual: 'email-school',
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "You receive an email saying your school account will be deactivated within 24 hours. It contains a link asking you to verify your account.",
     question: "What indicators suggest this may be phishing?",
     options: ["Urgency", "Suspicious link", "Request for account verification", "All of the above"],
     correct: 3
   },
   {
+<<<<<<< HEAD
     visual: 'chat-it',
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "A message from 'IT Support' asks for your password to fix an account issue.",
     question: "What should you do?",
     options: ["Provide the password immediately", "Ignore the message", "Report to official IT support", "Share with a colleague"],
     correct: 2
   },
   {
+<<<<<<< HEAD
     visual: 'usb-drop',
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "You find a USB drive in the parking lot labeled 'Employee Salaries'.",
     question: "What is the safest action?",
     options: ["Plug it in to see contents", "Give it to security/IT", "Take it home", "Format it and use it"],
     correct: 1
   },
   {
+<<<<<<< HEAD
     visual: 'email-bank',
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "An email claims to be from your bank asking you to click a link to verify a transaction.",
     question: "What should you do?",
     options: ["Click the link immediately", "Call the bank using official number", "Reply with your account details", "Forward to friends"],
     correct: 1
   },
   {
+<<<<<<< HEAD
     visual: 'popup-scam',
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
     scenario: "A pop-up says your computer is infected and you need to call a number for help.",
     question: "What is this likely to be?",
     options: ["Legitimate security alert", "Tech support scam", "Windows update", "Antivirus notification"],
@@ -431,6 +446,7 @@ const AssessmentQuestions = [
   }
 ];
 
+<<<<<<< HEAD
 
 // ---------- Assessment scenario visuals (realistic mock-ups) ----------
 const SV_CREST = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.5 20.5 5.7v5.8c0 5-3.4 8.7-8.5 10-5.1-1.3-8.5-5-8.5-10V5.7Z" fill="currentColor"/><path d="m8.2 12.1 2.7 2.7 5-5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -548,6 +564,8 @@ function renderAssessmentVisual(containerId, type) {
   el.style.display = type ? '' : 'none';
 }
 
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
 // Authentication Functions - moved to js/auth.js
 // handleLogin(), handleRegister(), handleLogout() are now in auth.js
 
@@ -783,7 +801,10 @@ function showPreAssessmentQuestion() {
   document.getElementById('pre-assessment-label').textContent = `PRE-ASSESSMENT - QUESTION ${AppState.preAssessmentIndex + 1}/${total}`;
   document.getElementById('pre-assessment-scenario').textContent = question.scenario;
   document.getElementById('pre-assessment-question').textContent = question.question;
+<<<<<<< HEAD
   renderAssessmentVisual('pre-assessment-visual', question.visual);
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
 
   // Build progress bar segments
   const progressContainer = document.getElementById('pre-assessment-progress');
@@ -1640,7 +1661,10 @@ function showPostAssessmentQuestion() {
   document.getElementById('post-assessment-label').textContent = `POST-ASSESSMENT - QUESTION ${AppState.postAssessmentIndex + 1}/${total}`;
   document.getElementById('post-assessment-scenario').textContent = question.scenario;
   document.getElementById('post-assessment-question').textContent = question.question;
+<<<<<<< HEAD
   renderAssessmentVisual('post-assessment-visual', question.visual);
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
 
   // Build progress bar segments
   const progressContainer = document.getElementById('post-assessment-progress');

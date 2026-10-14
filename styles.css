@@ -871,6 +871,7 @@ h2 .ic-inline{margin-right:0;margin-left:.15em;color:var(--lime)}
 .link-row.correct .link-icon{color:var(--lime)}
 .link-row.incorrect .link-icon{color:var(--coral)}
 .nav-item > .ic{width:18px;height:18px}
+<<<<<<< HEAD
 
 /* ================= ASSESSMENT SCENARIO VISUALS ================= */
 #pre-assessment-screen,#post-assessment-screen{ overflow-y:auto; }
@@ -962,3 +963,5 @@ h2 .ic-inline{margin-right:0;margin-left:.15em;color:var(--lime)}
   .assessment-left,.assessment-right{ flex:none; }
   .sv-win .sv-scam-title{ font-size:16px; }
 }
+=======
+>>>>>>> 719c392e8a8054e5dc1152c2d8fe94251ec546f8
