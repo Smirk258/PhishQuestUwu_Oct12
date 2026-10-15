@@ -1131,6 +1131,48 @@ function nextPreAssessment() {
   }
 }
 
+// ── Per-mission score summary (best score of each scenario, out of 10) ──
+function missionScoreSummary(missionId) {
+  const prog = AppState.missionProgress[missionId];
+  const recs = [];
+  for (let d = 0; d < SCENARIOS_PER_MISSION; d++) {
+    const rec = prog.scenarios.find(s => (s.scenarioIndex !== undefined ? s.scenarioIndex : prog.scenarios.indexOf(s)) === d);
+    recs.push(rec || null);
+  }
+  const played = recs.filter(Boolean);
+  const points = played.reduce((sum, r) => sum + r.score, 0);
+  const max = SCENARIOS_PER_MISSION * POINTS_PER_SCENARIO;
+  const playedMax = played.length * POINTS_PER_SCENARIO;
+  const accuracy = playedMax ? Math.round((points / playedMax) * 100) : null;
+  const missing = [];
+  recs.forEach((r, d) => { if (r && r.score < POINTS_PER_SCENARIO) missing.push({ d: d, score: r.score }); });
+  const gain = missing.reduce((sum, m) => sum + (POINTS_PER_SCENARIO - m.score), 0);
+  return { recs, played: played.length, points, max, accuracy, missing, gain };
+}
+
+function renderMissionScore(missionId, sum) {
+  const statusEl = document.getElementById(`mission-${missionId}-status`);
+  if (!statusEl) return;
+  let el = document.getElementById(`mission-${missionId}-pct`);
+  if (!el) {
+    el = document.createElement('span');
+    el.id = `mission-${missionId}-pct`;
+    statusEl.parentNode.insertBefore(el, statusEl);
+  }
+  if (sum.played === 0) { el.textContent = ''; el.className = 'mission-pct'; return; }
+  const pct = Math.round((sum.points / sum.max) * 100);
+  el.textContent = pct + '%';
+  el.className = 'mission-pct ' + (pct >= 90 ? 'good' : pct >= 60 ? 'mid' : 'low');
+}
+
+// Jump straight into one scenario (used by the "pts to recover" chips on the hub)
+function replayScenario(missionId, index) {
+  AppState.currentMission = missionId;
+  AppState.streak = 0;
+  AppState.currentScenario = index;
+  showMissionScenario();
+}
+
 // Mission Hub
 function updateMissionHub() {
   updateAgentInfo();
@@ -1170,6 +1212,14 @@ function updateMissionHub() {
   }
 
   // ── Mission cards ────────────────────────────────────────
+  // Score summary per mission, and which mission has the most points left to recover
+  const summaries = {};
+  let topMissionId = null;
+  for (let i = 1; i <= MISSION_COUNT; i++) {
+    summaries[i] = missionScoreSummary(i);
+    if (summaries[i].gain > 0 && (topMissionId === null || summaries[i].gain > summaries[topMissionId].gain)) topMissionId = i;
+  }
+
   let nextMissionId = null;   // first non-completed mission that is unlocked
   let nextMissionInProgress = false;
 
@@ -1187,16 +1237,26 @@ function updateMissionHub() {
     // Build scenario dots (5 segments)
     if (dotsEl) {
       dotsEl.innerHTML = '';
-      const completedCount = mission.scenarios.length;
-      for (let d = 0; d < 5; d++) {
+      const dotSum = summaries[i];
+      for (let d = 0; d < SCENARIOS_PER_MISSION; d++) {
+        const rec = dotSum.recs[d];
         const dot = document.createElement('div');
-        dot.className = 'scenario-dot' + (d < completedCount ? ' done' : '');
+        let cls = 'scenario-dot';
+        if (rec) cls += rec.score >= POINTS_PER_SCENARIO ? ' done perfect' : rec.score >= 5 ? ' done partial' : ' done low';
+        dot.className = cls;
+        dot.title = rec ? `Scenario ${d + 1}: ${rec.score}/${POINTS_PER_SCENARIO}` : `Scenario ${d + 1}: not played yet`;
+        if (rec && rec.score < POINTS_PER_SCENARIO) {
+          dot.classList.add('clickable');
+          dot.title += ' · click to replay';
+          dot.onclick = () => replayScenario(i, d);
+        }
         dotsEl.appendChild(dot);
       }
     }
     if (labelEl) {
       labelEl.textContent = `${mission.scenarios.length}/5 scenarios`;
     }
+    renderMissionScore(i, summaries[i]);
 
     // Remove all state classes first
     card.classList.remove('state-available', 'state-in-progress', 'state-cleared', 'state-locked');
@@ -1270,7 +1330,11 @@ function updateMissionHub() {
   if (allComplete) {
     if (bannerLabel) bannerLabel.textContent = 'ALL MISSIONS CLEARED';
     if (bannerTitle) bannerTitle.textContent = 'Ready to measure how far you\'ve come?';
-    if (bannerSub)   bannerSub.textContent   = 'Take the post-assessment to see your awareness gain.';
+    if (bannerSub) {
+      bannerSub.textContent = topMissionId
+        ? `Replay ${Missions[topMissionId].name} to recover ${summaries[topMissionId].gain} pts, or take the post-assessment.`
+        : 'Perfect run! Take the post-assessment to see your awareness gain.';
+    }
     if (postBtn && !AppState.currentUser.postAssessmentCompleted) {
       postBtn.style.display = 'inline-block';
     }
@@ -2079,7 +2143,7 @@ Scenarios Completed: ${AppState.scenariosCompleted}/${TOTAL_SCENARIOS}
 
 MISSION DETAILS
 ---------------
-${Object.keys(Missions).map(id => { const mp = AppState.missionProgress[id]; return Missions[id].name + ': ' + (mp.completed ? 'Completed' : mp.scenarios.length > 0 ? 'In Progress' : 'Not Started'); }).join('\n')}
+${Object.keys(Missions).map(id => { const mp = AppState.missionProgress[id]; return Missions[id].name + ': ' + (mp.completed ? 'Completed' : mp.scenarios.length > 0 ? 'In Progress' : 'Not Started') + ' (' + missionScoreSummary(id).points + '/' + (SCENARIOS_PER_MISSION * POINTS_PER_SCENARIO) + ' pts)'; }).join('\n')}
 
 CURRENT RANK: ${getRank(AppState.score)}
   `;

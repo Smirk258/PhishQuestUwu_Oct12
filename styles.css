@@ -1219,3 +1219,13 @@ body::before{
   .pp-permission{ width:calc(100% - 28px); }
   .pp-pagemsg{ padding-top:110px; }
 }
+
+/* ================= PER-MISSION SCORES (simple) ================= */
+.scenario-dot{ height:8px; }
+.scenario-dot.done.perfect{ background:var(--lime); }
+.scenario-dot.done.partial{ background:var(--yellow); }
+.scenario-dot.done.low{ background:var(--coral); }
+.scenario-dot.clickable{ cursor:pointer; }
+.scenario-dot.clickable:hover{ filter:brightness(1.25); transform:scaleY(1.3); }
+.mission-pct{ margin-left:auto; font-size:13px; font-weight:800; }
+.mission-pct.good{ color:var(--lime); } .mission-pct.mid{ color:var(--yellow); } .mission-pct.low{ color:var(--coral); }
