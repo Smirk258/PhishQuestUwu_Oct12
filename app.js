@@ -15,7 +15,9 @@ const AppState = {
     1: { completed: false, scenarios: [] },
     2: { completed: false, scenarios: [] },
     3: { completed: false, scenarios: [] },
-    4: { completed: false, scenarios: [] }
+    4: { completed: false, scenarios: [] },
+    5: { completed: false, scenarios: [] },
+    6: { completed: false, scenarios: [] }
   },
   preAssessmentScore: 0,
   postAssessmentScore: 0,
@@ -460,12 +462,238 @@ const Missions = {
         safeNotes: { "chat-0": "A friendly greeting asks for nothing. The requests that follow are the issue." }
       }
     ]
+  },
+  5: {
+    name: "Pop-up Phishing",
+    scenarios: [
+      {
+        title: "You've Won!", difficulty: "Easy", type: "popup",
+        instruction: "A pop-up appeared while you were reading the news. Tap anything that looks suspicious.",
+        hint: "Where does GCash really announce rewards? And what is a countdown for?",
+        content: {
+          tab: "Balita Ngayon", url: "balitangayon.com.ph/lokal/ulan-update", secure: true,
+          site: { name: "BALITA NGAYON", headline: "PAGASA: Moderate to heavy rains expected in Metro Manila", hs: "site" },
+          cookie: { text: "We use cookies to improve your experience.", button: "Accept", hs: "cookie" },
+          popup: {
+            style: "promo",
+            head: { text: "GCASH PROMO CENTER" },
+            title: { text: "CONGRATULATIONS! You won ₱50,000", hs: "prize" },
+            body: [{ text: "You are today's lucky visitor. Claim your cash prize now!" }],
+            timer: { text: "Claim within 04:59", hs: "timer" },
+            buttons: [{ text: "CLAIM NOW", primary: true }],
+            small: { text: "Claim at: gcash-rewards.promo-ph.xyz", hs: "claimurl" }
+          }
+        },
+        hotspots: {
+          url: { flag: false, name: "Website address", safe: "This is the news site you were really reading, so the address bar is fine. The pop-up is the problem, not the page behind it." },
+          cookie: { flag: false, name: "Cookie notice", safe: "Cookie notices are normal on websites and are not a red flag on their own." },
+          site: { flag: false, name: "News headline", safe: "The article is ordinary content. Pop-ups can appear on top of any page, even a real one." },
+          prize: { flag: true, name: "Prize announcement", why: "A prize you never entered for is bait. GCash says real rewards and promos are announced only inside its official app, not on random web pages." },
+          timer: { flag: true, name: "Countdown timer", why: "The countdown exists to rush you before you can stop and check. Real giveaways don't expire in five minutes." },
+          claimurl: { flag: true, name: "Claim link", why: "The real domain here is 'promo-ph.xyz', which isn't GCash's. Fake portals like this copy GCash's look to collect your number, OTP and MPIN." }
+        }
+      },
+      {
+        title: "Your Phone Is Infected", difficulty: "Easy", type: "popup",
+        instruction: "This warning popped up in your phone's browser while you looked up a recipe. Is it real?",
+        hint: "Can a website really scan your phone? Who gives genuine security warnings?",
+        content: {
+          tab: "Lutong Bahay", url: "lutongbahay.com.ph/adobo", secure: true,
+          site: { name: "LUTONG BAHAY", headline: "Easy Chicken Adobo, Ready in 30 Minutes", hs: "site" },
+          popup: {
+            style: "alert",
+            head: { text: "SYSTEM SECURITY ALERT", hs: "fakesys" },
+            title: { text: "5 viruses found on your phone!", hs: "scare" },
+            body: [{ text: "Your battery is damaged and your photos and GCash are at risk. Install Fast Cleaner now to remove them." }],
+            buttons: [{ text: "Install Fast Cleaner", primary: true, hs: "install" }, { text: "Later" }],
+            small: { text: "Scan completed in 2.1 seconds" }
+          }
+        },
+        hotspots: {
+          url: { flag: false, name: "Website address", safe: "That is the recipe site you chose to visit, so the address is fine. The pop-up is what doesn't belong." },
+          site: { flag: false, name: "Recipe headline", safe: "The page behind the pop-up is ordinary content. Scam pop-ups can appear over any website." },
+          fakesys: { flag: true, name: "\"System\" header", why: "Websites can't see inside your phone. This 'system' box is just part of a web page dressed up to look like Android." },
+          scare: { flag: true, name: "Virus warning", why: "No website can scan your phone for viruses, least of all in 2 seconds. Scare messages like this are meant to push you into installing something." },
+          install: { flag: true, name: "Install button", why: "It pushes an app from outside the official store, often malware or something that steals data. Real security apps come from your app store, not from a pop-up." }
+        }
+      },
+      {
+        title: "Human Verification", difficulty: "Medium", type: "popup",
+        instruction: "A free-movie site is asking for something. Tap the parts that look wrong.",
+        hint: "What does 'Allow' actually give this website?",
+        content: {
+          tab: "Pelikula Online", url: "pelikula-online.stream/watch", secure: true,
+          site: { name: "PELIKULA ONLINE", headline: "Watch the latest movies free, no sign-up" },
+          pagemsg: { text: "Click \"Allow\" to verify that you are not a robot", hs: "pagemsg" },
+          popup: {
+            style: "permission",
+            title: { text: "pelikula-online.stream wants to", hs: "prompt" },
+            body: [{ text: "Show notifications" }],
+            buttons: [{ text: "Block", hs: "block" }, { text: "Allow", primary: true, hs: "allow" }]
+          }
+        },
+        hotspots: {
+          url: { flag: true, name: "Website address", why: "Free-movie sites with unfamiliar endings like '.stream' are a common home for scam pop-ups. Treat unfamiliar sites with extra care." },
+          pagemsg: { flag: true, name: "\"Verify you're not a robot\" text", why: "A real robot check never needs you to allow notifications. This line is the trick that gets you to click Allow." },
+          allow: { flag: true, name: "Allow button", why: "Allowing notifications lets the site push pop-ups straight to your screen at any time, which scammers use to send fake alerts, prizes and malicious links." },
+          prompt: { flag: false, name: "Permission box", safe: "This box is your browser's own permission prompt, which is genuine. It is simply asking a question. What matters is your answer." },
+          block: { flag: false, name: "Block button", safe: "Block is the safe choice here, so it is not a red flag." }
+        }
+      },
+      {
+        title: "Free Data Promo", difficulty: "Medium", type: "popup",
+        instruction: "A promo box covers a forum page. Tap what doesn't add up.",
+        hint: "Think about what an OTP is really for.",
+        content: {
+          tab: "Kwentuhan Forum", url: "kwentuhan.com.ph/threads/budget-phones", secure: true,
+          site: { name: "KWENTUHAN FORUM", headline: "Best budget phones under ₱8,000 this year", hs: "site" },
+          popup: {
+            style: "modal",
+            head: { text: "MABUHAY MOBILE", hs: "brand" },
+            title: { text: "Free 10GB for 7 days!" },
+            body: [{ text: "Enter your mobile number and the OTP we send you to claim your free data." }],
+            fields: [{ label: "Mobile number", value: "09XX XXX XXXX", hs: "number" }, { label: "OTP", pass: true, hs: "otp" }],
+            timer: { text: "Only 37 slots left!", hs: "scarcity" },
+            buttons: [{ text: "Claim free data", primary: true }],
+            small: { text: "Promo valid until Oct 31. Terms apply.", hs: "terms" },
+            source: { text: "Sent by: freedata-mabuhay.top", hs: "sourceurl" }
+          }
+        },
+        hotspots: {
+          url: { flag: false, name: "Website address", safe: "That's the forum you were really reading. The problem is the box on top of it." },
+          site: { flag: false, name: "Forum headline", safe: "The page behind the pop-up is ordinary content." },
+          brand: { flag: false, name: "Brand header", safe: "Logos and names can be copied by anyone, so a familiar header proves nothing. Judge what the box asks for." },
+          number: { flag: false, name: "Mobile number field", safe: "Entering a mobile number alone is not the danger here. The dangerous request is the OTP that follows." },
+          terms: { flag: false, name: "Terms line", safe: "Small print like this is easy to copy and proves nothing either way." },
+          otp: { flag: true, name: "OTP request", why: "An OTP approves a login or a payment, and no free promo needs it. GCash says never to share your OTP or MPIN with anyone, including sites that promise rewards." },
+          scarcity: { flag: true, name: "\"Only 37 slots left\"", why: "Fake scarcity is another pressure trick, meant to make you act before thinking." },
+          sourceurl: { flag: true, name: "Sender address", why: "'freedata-mabuhay.top' is not the telco's real domain, and '.top' is a cheap extension often used by scammers." }
+        }
+      },
+      {
+        title: "Session Timed Out", difficulty: "Hard", type: "popup",
+        instruction: "You were reading the news when this appeared. Find what's wrong.",
+        hint: "Would your bank ever show a login box on top of a news website?",
+        content: {
+          tab: "Balita Ngayon", url: "balitangayon.com.ph/negosyo/inflation", secure: true,
+          site: { name: "BALITA NGAYON", headline: "Inflation eases to 3.4% as food prices stabilise", hs: "site" },
+          popup: {
+            style: "modal",
+            head: { text: "BAYANIHAN BANK", hs: "brand" },
+            title: { text: "Your online banking session has timed out", hs: "modal" },
+            body: [{ text: "For your security, please log in again to continue." }],
+            fields: [{ label: "Username", value: "" }, { label: "Password", pass: true }, { label: "One-time PIN", pass: true, hs: "otp" }],
+            buttons: [{ text: "Log in", primary: true }],
+            small: { text: "© 2026 Bayanihan Bank", hs: "footer" }
+          }
+        },
+        hotspots: {
+          url: { flag: false, name: "Website address", safe: "A genuine news site with a normal address. The page behind the pop-up is not what's fake." },
+          site: { flag: false, name: "News headline", safe: "An ordinary article. Scam boxes can sit on top of completely real pages." },
+          brand: { flag: false, name: "Bank header", safe: "A bank's name and colours are trivial to copy, so the header alone tells you nothing." },
+          footer: { flag: false, name: "Copyright line", safe: "A copyright line is easy to copy and proves nothing." },
+          modal: { flag: true, name: "Bank login pop-up", why: "Your bank's session lives on the bank's own website or app. It will never show a login box on top of some other website. Close the page and open your bank directly." },
+          otp: { flag: true, name: "One-time PIN request", why: "Asking for your password and a one-time PIN together lets the scammer log in as you in real time." }
+        }
+      }
+    ]
+  },
+  6: {
+    name: "Evil Twin Phishing",
+    scenarios: [
+      {
+        title: "Mall Free Wi-Fi", difficulty: "Easy", type: "wifi",
+        context: "A sign at the mall entrance says: Free Wi-Fi network \"GreenfieldMall_Free\"",
+        instruction: "You need to get online. Tap any network that looks like a fake copy.",
+        hint: "Compare every name with the sign, letter by letter.",
+        networks: [
+          { ssid: "GreenfieldMall_Free", secure: false, bars: 3, flag: false, safe: "This matches the sign exactly, so it is the mall's real network. Open public Wi-Fi is normal, but avoid banking or logging in to important accounts on it." },
+          { ssid: "GreenfieldMall_Free_Fast", secure: false, bars: 4, flag: true, why: "This name isn't on the sign. Adding a word like 'Fast' is a classic way to copy a network's name, and attackers often make the fake one the strongest signal." },
+          { ssid: "Greenfield Mall Free WiFi", secure: false, bars: 2, flag: true, why: "Spaces instead of underscores: close, but not the name on the sign. Only join the exact network the venue lists." },
+          { ssid: "HomeFiber_82F1", secure: true, bars: 1, flag: false, safe: "That is someone's home router bleeding into the mall. It's locked and not pretending to be the mall's Wi-Fi." }
+        ]
+      },
+      {
+        title: "Coffee Shop", difficulty: "Easy", type: "wifi",
+        context: "Your receipt says: Wi-Fi \"BrewHaus_Guest\" · password: kape2026",
+        instruction: "You're ready to work. Tap any network that doesn't belong.",
+        hint: "The café's real network needs a password. Which ones don't?",
+        networks: [
+          { ssid: "BrewHaus_Guest", secure: true, bars: 3, flag: false, safe: "It matches the receipt exactly and it asks for the password printed there, so it is the genuine network." },
+          { ssid: "BrewHaus_Guest_FREE", secure: false, bars: 4, flag: true, why: "The real network needs a password, but this one is open. An extra word plus a strong signal and no password is a typical evil twin." },
+          { ssid: "BrewHaus-Guest", secure: false, bars: 2, flag: true, why: "A hyphen instead of an underscore, and open when the real one is locked. Near-identical names are how evil twins fool you." },
+          { ssid: "BrewHaus_Staff", secure: true, bars: 2, flag: false, safe: "This looks like the staff network. It is password-protected and not meant for you, but it isn't a fake copy of the guest Wi-Fi." }
+        ]
+      },
+      {
+        title: "Airport Layover", difficulty: "Medium", type: "wifi",
+        context: "The airport information board says: Free Wi-Fi network \"Airport_FreeWiFi\", then sign in with your email",
+        instruction: "Your flight is delayed. Tap the networks that look suspicious.",
+        hint: "Free Wi-Fi hotspots in airports are a favourite place to set up fakes.",
+        networks: [
+          { ssid: "Airport_FreeWiFi", secure: false, bars: 3, flag: false, safe: "It matches the board exactly, so it is the airport's real network. Still avoid anything sensitive on open Wi-Fi." },
+          { ssid: "Airport_FreeWiFi_5G", secure: false, bars: 4, flag: true, why: "The board doesn't list a '5G' network. A stronger-looking copy of the name is a classic trap." },
+          { ssid: "Free Internet", secure: false, bars: 4, flag: true, why: "A generic name that doesn't match the board. It could be anyone's phone or laptop acting as a hotspot." },
+          { ssid: "Terminal3_Lounge", secure: true, bars: 2, flag: false, safe: "A private lounge network that needs a password. It isn't impersonating the airport's free Wi-Fi." }
+        ]
+      },
+      {
+        title: "The Sign-In Page", difficulty: "Medium", type: "wifi",
+        context: "You joined \"CityMall_Free_WiFi\" and a sign-in page opened automatically.",
+        instruction: "Tap anything on this Wi-Fi login page that looks wrong.",
+        hint: "What would real mall Wi-Fi never need to know?",
+        portal: {
+          tab: "Wi-Fi Login", url: "citymall-wifi-login.xyz/auth", secure: false, theme: "#6d28d9",
+          brand: "CITYMALL FREE WI-FI", heading: "Sign in to get online",
+          banner: { tone: "info", text: "Free for 30 minutes. Sign in to continue." },
+          fields: [
+            { label: "Facebook email", value: "ana.reyes@gmail.com" },
+            { label: "Facebook password", pass: true, hs: "fbpass" },
+            { label: "GCash number", value: "09XX XXX XXXX" },
+            { label: "GCash MPIN", pass: true, hs: "mpin" },
+            { label: "I agree to the Terms of use", check: true, hs: "terms" }
+          ],
+          button: "Connect", links: ["Terms of use", "Help"],
+          footer: "© 2026 CityMall Wi-Fi"
+        },
+        hotspots: {
+          url: { flag: true, name: "Website address", why: "A mall Wi-Fi sign-in page on a random '.xyz' address is a red flag. Real portals use the venue's own domain." },
+          lock: { flag: true, name: "Security label", why: "'Not secure' means this page isn't encrypted, so anything you type could be read by whoever runs the hotspot." },
+          fbpass: { flag: true, name: "Facebook password", why: "Free Wi-Fi never needs your social media password. This is a fake portal harvesting logins." },
+          mpin: { flag: true, name: "GCash MPIN", why: "Your MPIN should only ever be typed into the official GCash app. GCash says never to share your MPIN or OTP with anyone." },
+          banner: { flag: false, name: "Free for 30 minutes", safe: "Time-limited free access is common on real public Wi-Fi, so this isn't suspicious by itself." },
+          terms: { flag: false, name: "Terms checkbox", safe: "Agreeing to terms is a normal step on genuine Wi-Fi portals too." },
+          brand: { flag: false, name: "Page header", safe: "A venue's name on the page is easy to copy and tells you nothing." },
+          footer: { flag: false, name: "Footer", safe: "Footer text is trivial to copy and proves nothing." }
+        }
+      },
+      {
+        title: "Campus Wi-Fi", difficulty: "Hard", type: "wifi",
+        context: "Library poster: students use \"MetroUniv-Secure\" (sign in with your student account). Visitors use \"MetroUniv-Guest\" (open, email sign-in).",
+        instruction: "Exam week and everyone is online. Tap the fake copies.",
+        hint: "A padlock doesn't prove a network is real. Match the exact name on the poster.",
+        networks: [
+          { ssid: "MetroUniv-Secure", secure: true, bars: 3, flag: false, safe: "This is exactly the name on the poster for students. It is the real network." },
+          { ssid: "MetroUniv-Guest", secure: false, bars: 2, flag: false, safe: "Also listed on the poster for visitors. It is open on purpose, so it isn't a fake copy, but avoid sensitive logins on it." },
+          { ssid: "MetroUniv-Secure-FAST", secure: false, bars: 4, flag: true, why: "It isn't on the poster. A 'secure' network that is suddenly open and extra fast is a trap." },
+          { ssid: "MetroUniv_Secure", secure: true, bars: 4, flag: true, why: "An underscore instead of a hyphen. Evil twins can even be password-protected, because the attacker sets the password. Match the exact name, not just the padlock." }
+        ]
+      }
+    ]
   }
+
 };
 
 // Work out how many real indicators each scenario has and prepare the feedback text.
 (function normalizeMissions() {
   Object.values(Missions).forEach(m => m.scenarios.forEach(sc => {
+    // Wi-Fi scenarios: every listed network becomes a tappable hotspot
+    if (sc.type === 'wifi' && sc.networks) {
+      sc.hotspots = sc.hotspots || {};
+      sc.networks.forEach((n, i) => {
+        sc.hotspots['net-' + i] = { flag: !!n.flag, name: 'Network \u201c' + n.ssid + '\u201d', why: n.why, safe: n.safe };
+      });
+    }
     if (sc.hotspots) {
       sc.explanations = {}; sc.safeNotes = {};
       Object.entries(sc.hotspots).forEach(([id, h]) => {
@@ -481,6 +709,13 @@ const Missions = {
     }
   }));
 })();
+
+// Game-wide numbers derived from the mission data
+const MISSION_COUNT = Object.keys(Missions).length;
+const SCENARIOS_PER_MISSION = 5;
+const TOTAL_SCENARIOS = MISSION_COUNT * SCENARIOS_PER_MISSION;
+const POINTS_PER_SCENARIO = 10;
+const MAX_SCORE = TOTAL_SCENARIOS * POINTS_PER_SCENARIO;
 
 // Assessment Questions
 const AssessmentQuestions = [
@@ -648,7 +883,7 @@ function saveUserProgress() {
     if (userIndex !== -1) {
       // Calculate unique scenarios completed across all missions
       let uniqueScenariosCompleted = 0;
-      for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= MISSION_COUNT; i++) {
         uniqueScenariosCompleted += AppState.missionProgress[i].scenarios.length;
       }
 
@@ -714,61 +949,33 @@ function updateAgentInfo() {
   if (gpRank) gpRank.textContent = `RANK: ${rank}`;
 }
 
+// Rank thresholds (scaled for a 300-point maximum)
+const RANK_NAMES = ['NOVICE HUNTER', 'JUNIOR AGENT', 'SKILLED OPERATIVE', 'SENIOR AGENT', 'MASTER HUNTER'];
+const RANK_MINS  = [0, 75, 135, 195, 255];
+
+function rankIndex(score) {
+  let idx = 0;
+  RANK_MINS.forEach((min, i) => { if (score >= min) idx = i; });
+  return idx;
+}
+
 function getRank(score) {
-  if (score >= 170) return 'MASTER HUNTER';
-  if (score >= 130) return 'SENIOR AGENT';
-  if (score >= 90)  return 'SKILLED OPERATIVE';
-  if (score >= 50)  return 'JUNIOR AGENT';
-  return 'NOVICE HUNTER';
+  return RANK_NAMES[rankIndex(score)];
 }
 
 function getRankInfo(score) {
-  if (score >= 170) {
-    return {
-      current: 'MASTER HUNTER',
-      next: null,
-      pointsToNext: 0,
-      currentMin: 170,
-      currentMax: 200,
-      progress: 100
-    };
-  } else if (score >= 130) {
-    return {
-      current: 'SENIOR AGENT',
-      next: 'MASTER HUNTER',
-      pointsToNext: 170 - score,
-      currentMin: 130,
-      currentMax: 169,
-      progress: ((score - 130) / 40) * 100
-    };
-  } else if (score >= 90) {
-    return {
-      current: 'SKILLED OPERATIVE',
-      next: 'SENIOR AGENT',
-      pointsToNext: 130 - score,
-      currentMin: 90,
-      currentMax: 129,
-      progress: ((score - 90) / 40) * 100
-    };
-  } else if (score >= 50) {
-    return {
-      current: 'JUNIOR AGENT',
-      next: 'SKILLED OPERATIVE',
-      pointsToNext: 90 - score,
-      currentMin: 50,
-      currentMax: 89,
-      progress: ((score - 50) / 40) * 100
-    };
-  } else {
-    return {
-      current: 'NOVICE HUNTER',
-      next: 'JUNIOR AGENT',
-      pointsToNext: 50 - score,
-      currentMin: 0,
-      currentMax: 49,
-      progress: (score / 50) * 100
-    };
-  }
+  const i = rankIndex(score);
+  const next = RANK_NAMES[i + 1] || null;
+  const min = RANK_MINS[i];
+  const nextMin = RANK_MINS[i + 1];
+  return {
+    current: RANK_NAMES[i],
+    next: next,
+    pointsToNext: next ? nextMin - score : 0,
+    currentMin: min,
+    currentMax: next ? nextMin - 1 : MAX_SCORE,
+    progress: next ? ((score - min) / (nextMin - min)) * 100 : 100
+  };
 }
 
 // ── Sync rank popup data (called from updateMissionHub & showRankPopup) ──
@@ -818,7 +1025,7 @@ function syncRankPopupData() {
       ? `${rankInfo.pointsToNext} pts to ${rankInfo.next}`
       : 'Top rank reached — nothing phishes past you.';
   }
-  if (scoreEl) scoreEl.textContent = `${AppState.score}/200`;
+  if (scoreEl) scoreEl.textContent = `${AppState.score}/${MAX_SCORE}`;
   if (fillEl)  fillEl.style.width  = `${rankInfo.progress}%`;
 
   // Rank ladder items — keyed by data-rank attribute
@@ -850,14 +1057,8 @@ function hideRankPopup() {
 }
 
 function getRankScore(rankName) {
-  switch(rankName) {
-    case 'NOVICE HUNTER':    return 0;
-    case 'JUNIOR AGENT':     return 50;
-    case 'SKILLED OPERATIVE':return 90;
-    case 'SENIOR AGENT':     return 130;
-    case 'MASTER HUNTER':    return 170;
-    default: return 0;
-  }
+  const i = RANK_NAMES.indexOf(rankName);
+  return i >= 0 ? RANK_MINS[i] : 0;
 }
 
 // Pre-Assessment
@@ -937,31 +1138,31 @@ function updateMissionHub() {
   // ── Tally stats ──────────────────────────────────────────
   let uniqueScenariosCompleted = 0;
   let missionsCleared = 0;
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= MISSION_COUNT; i++) {
     uniqueScenariosCompleted += AppState.missionProgress[i].scenarios.length;
     if (AppState.missionProgress[i].completed) missionsCleared++;
   }
 
   // ── Stat strip ───────────────────────────────────────────
-  // score value — keep the /200 inside a <span class="stat-max">
+  // score value — keep the max inside a <span class="stat-max">
   const scoreEl = document.getElementById('current-score');
-  if (scoreEl) scoreEl.innerHTML = `${AppState.score} <span class="stat-max">/200</span>`;
+  if (scoreEl) scoreEl.innerHTML = `${AppState.score} <span class="stat-max">/${MAX_SCORE}</span>`;
 
   const scenEl = document.getElementById('scenarios-completed');
-  if (scenEl) scenEl.innerHTML = `${uniqueScenariosCompleted} <span class="stat-max">/20</span>`;
+  if (scenEl) scenEl.innerHTML = `${uniqueScenariosCompleted} <span class="stat-max">/${TOTAL_SCENARIOS}</span>`;
 
   const mclEl = document.getElementById('missions-cleared');
-  if (mclEl) mclEl.innerHTML = `${missionsCleared} <span class="stat-max">/4</span>`;
+  if (mclEl) mclEl.innerHTML = `${missionsCleared} <span class="stat-max">/${MISSION_COUNT}</span>`;
 
   // ── Completion bar ───────────────────────────────────────
-  const pct = Math.round((uniqueScenariosCompleted / 20) * 100);
+  const pct = Math.round((uniqueScenariosCompleted / TOTAL_SCENARIOS) * 100);
   const pctEl = document.getElementById('completion-percent');
-  if (pctEl) pctEl.textContent = `${pct}% (${uniqueScenariosCompleted}/20)`;
+  if (pctEl) pctEl.textContent = `${pct}% (${uniqueScenariosCompleted}/${TOTAL_SCENARIOS})`;
 
   const barTrack = document.getElementById('completion-bar');
   if (barTrack) {
     barTrack.innerHTML = '';
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < TOTAL_SCENARIOS; i++) {
       const seg = document.createElement('i');
       seg.className = i < uniqueScenariosCompleted ? 'filled' : '';
       barTrack.appendChild(seg);
@@ -969,17 +1170,10 @@ function updateMissionHub() {
   }
 
   // ── Mission cards ────────────────────────────────────────
-  const missionNames = {
-    1: 'Email Detective',
-    2: 'Link Hunter',
-    3: 'Fake Website',
-    4: 'Social Engineering'
-  };
-
   let nextMissionId = null;   // first non-completed mission that is unlocked
   let nextMissionInProgress = false;
 
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= MISSION_COUNT; i++) {
     const mission   = AppState.missionProgress[i];
     const card      = document.getElementById(`mission-${i}`);
     const statusEl  = document.getElementById(`mission-${i}-status`);
@@ -1071,7 +1265,7 @@ function updateMissionHub() {
   const bannerTitle = document.getElementById('next-up-title');
   const bannerSub   = document.getElementById('next-up-sub');
   const postBtn     = document.getElementById('hub-post-assessment-btn');
-  const allComplete = missionsCleared === 4;
+  const allComplete = missionsCleared === MISSION_COUNT;
 
   if (allComplete) {
     if (bannerLabel) bannerLabel.textContent = 'ALL MISSIONS CLEARED';
@@ -1081,9 +1275,9 @@ function updateMissionHub() {
       postBtn.style.display = 'inline-block';
     }
   } else if (nextMissionId !== null) {
-    const mName = missionNames[nextMissionId];
+    const mName = Missions[nextMissionId].name;
     const scenLeft = 5 - AppState.missionProgress[nextMissionId].scenarios.length;
-    const nextNum  = nextMissionId < 4 ? `Mission 0${nextMissionId + 1}` : null;
+    const nextNum  = nextMissionId < MISSION_COUNT ? `Mission 0${nextMissionId + 1}` : null;
 
     if (nextMissionInProgress) {
       if (bannerLabel) bannerLabel.textContent = 'KEEP GOING';
@@ -1110,7 +1304,7 @@ function setHubTab(tab) {
   });
 
   // Show / hide mission cards based on tab
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= MISSION_COUNT; i++) {
     const card    = document.getElementById(`mission-${i}`);
     const mission = AppState.missionProgress[i];
     if (!card) continue;
@@ -1173,6 +1367,8 @@ function showMissionScenario() {
   else if (scenario.type === 'links') renderLinksScenario(scenario, contentContainer);
   else if (scenario.type === 'website') renderWebsiteScenario(scenario, contentContainer);
   else if (scenario.type === 'chat') renderChatScenario(scenario, contentContainer);
+  else if (scenario.type === 'popup') renderPopupScenario(scenario, contentContainer);
+  else if (scenario.type === 'wifi') renderWifiScenario(scenario, contentContainer);
 
   contentContainer.scrollTop = 0;
   showScreen('mission-gameplay');
@@ -1321,29 +1517,31 @@ function renderLinksScenario(scenario, container) {
   container.appendChild(list);
 }
 
-/* ---------------- WEBSITE ---------------- */
-function renderWebsiteScenario(scenario, container) {
-  const c = scenario.content;
+/* ---------------- BROWSER (shared by website, pop-up and Wi-Fi portal) ---------------- */
+function browserChrome(scenario, c) {
   const H = id => (scenario.hotspots[id] ? ` hs" data-hs="${id}` : '');
   const secure = c.secure !== false;
-  const fields = (c.fields || []).map(f => {
-    if (f.check) return `<div class="mx-check${f.hs ? H(f.hs) : ''}"><span class="mx-box"></span>${f.label}</div>`;
-    const val = f.pass ? '<span class="mx-dots-pw">••••••••••</span>' : (f.value || '');
-    return `<div class="mx-field${f.hs ? H(f.hs) : ''}"><label>${f.label}</label><div class="mx-input">${val}</div></div>`;
-  }).join('');
-  const banner = c.banner ? `<div class="mx-banner ${c.banner.tone}${H('banner')}">${c.banner.text}</div>` : '';
-
-  const wrap = document.createElement('div');
-  wrap.className = 'sv-win mx-site';
-  wrap.innerHTML = `
-    <div class="mx-tabs"><span class="sv-dots"><i></i><i></i><i></i></span><span class="mx-tab">${c.tab || c.brand}</span></div>
+  return `
+    <div class="mx-tabs"><span class="sv-dots"><i></i><i></i><i></i></span><span class="mx-tab">${c.tab || c.brand || ''}</span></div>
     <div class="mx-toolbar">
       <span class="mx-nav"><i>‹</i><i>›</i><i>↻</i></span>
       <div class="mx-addr">
         <span class="mx-lock ${secure ? 'ok' : 'bad'}${H('lock')}">${icon(secure ? 'lock' : 'alert')}${secure ? 'Secure' : 'Not secure'}</span>
         <span class="mx-urltext${H('url')}">${urlHtml(c.url, secure ? 'https://' : 'http://')}</span>
       </div>
-    </div>
+    </div>`;
+}
+
+function buildSiteHtml(scenario, c) {
+  const H = id => (scenario.hotspots[id] ? ` hs" data-hs="${id}` : '');
+  const fields = (c.fields || []).map(f => {
+    if (f.check) return `<div class="mx-check${f.hs ? H(f.hs) : ''}"><span class="mx-box"></span>${f.label}</div>`;
+    const val = f.pass ? '<span class="mx-dots-pw">••••••••••</span>' : (f.value || '');
+    return `<div class="mx-field${f.hs ? H(f.hs) : ''}"><label>${f.label}</label><div class="mx-input">${val}</div></div>`;
+  }).join('');
+  const banner = c.banner ? `<div class="mx-banner ${c.banner.tone}${H('banner')}">${c.banner.text}</div>` : '';
+  return `
+    ${browserChrome(scenario, c)}
     <div class="mx-page" style="--brand:${c.theme || '#1a4fc4'}">
       <div class="mx-pagehead"><span class="mx-logo${H('brand')}">${c.brand}</span></div>
       <div class="mx-card">
@@ -1355,7 +1553,99 @@ function renderWebsiteScenario(scenario, container) {
       </div>
       <div class="mx-footer${H('footer')}">${c.footer || ''}</div>
     </div>`;
+}
+
+function renderWebsiteScenario(scenario, container) {
+  const wrap = document.createElement('div');
+  wrap.className = 'sv-win mx-site';
+  wrap.innerHTML = buildSiteHtml(scenario, scenario.content);
   container.appendChild(wrap);
+}
+
+/* ---------------- POP-UP ---------------- */
+function renderPopupScenario(scenario, container) {
+  const c = scenario.content, p = c.popup;
+  const H = id => (scenario.hotspots[id] ? ` hs" data-hs="${id}` : '');
+  const A = o => (o && o.hs ? H(o.hs) : '');
+
+  const head = p.head ? `<div class="pp-head${A(p.head)}">${p.head.text}</div>` : '';
+  const icn = p.style === 'alert' ? `<svg class="ic pp-alert-ic" aria-hidden="true"><use href="#i-alert"/></svg>` : '';
+  const title = p.title ? `<div class="pp-title${A(p.title)}">${p.title.text}</div>` : '';
+  const body = (p.body || []).map(b => `<div class="pp-body${A(b)}">${b.text}</div>`).join('');
+  const fields = (p.fields || []).map(f =>
+    `<div class="mx-field${A(f)}"><label>${f.label}</label><div class="mx-input">${f.pass ? '<span class="mx-dots-pw">••••••</span>' : (f.value || '&nbsp;')}</div></div>`).join('');
+  const timer = p.timer ? `<div class="pp-timer${A(p.timer)}">${p.timer.text}</div>` : '';
+  const btns = (p.buttons || []).length
+    ? `<div class="pp-btns">${p.buttons.map(b => `<span class="pp-btn${b.primary ? ' primary' : ''}${A(b)}">${b.text}</span>`).join('')}</div>` : '';
+  const small = p.small ? `<div class="pp-small${A(p.small)}">${p.small.text}</div>` : '';
+  const source = p.source ? `<div class="pp-source${A(p.source)}">${p.source.text}</div>` : '';
+
+  const cookie = c.cookie
+    ? `<div class="pp-cookie${A(c.cookie)}"><span>${c.cookie.text}</span><b>${c.cookie.button}</b></div>` : '';
+  const pagemsg = c.pagemsg
+    ? `<div class="pp-pagemsg"><div class="pp-robot"><span class="mx-box"></span> I'm not a robot</div><div class="pp-pm${A(c.pagemsg)}">${c.pagemsg.text}</div></div>` : '';
+  const article = c.pagemsg ? pagemsg : `
+    <div class="pp-article">
+      <div class="pp-h${A(c.site)}">${c.site.headline}</div>
+      <div class="pp-skel"></div><div class="pp-skel w80"></div><div class="pp-skel"></div><div class="pp-skel w60"></div>
+    </div>`;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'sv-win mx-site';
+  wrap.innerHTML = `
+    ${browserChrome(scenario, c)}
+    <div class="pp-page">
+      <div class="pp-sitehead">${c.site.name}</div>
+      ${cookie}
+      ${article}
+      <div class="pp-backdrop"></div>
+      <div class="pp-pop pp-${p.style}">
+        ${head}
+        <div class="pp-inner">
+          ${icn}${title}${body}${fields}${timer}${btns}${small}${source}
+        </div>
+      </div>
+    </div>`;
+  container.appendChild(wrap);
+}
+
+/* ---------------- EVIL TWIN (Wi-Fi list and sign-in page) ---------------- */
+function wifiBars(n) {
+  const heights = [4, 7, 10, 13];
+  return '<svg class="wf-bars" viewBox="0 0 20 16" aria-hidden="true">' +
+    heights.map((h, i) => `<rect x="${i * 5}" y="${16 - h}" width="3.5" height="${h}" rx="1" fill="${i < n ? '#202124' : '#d0d5dd'}"/>`).join('') + '</svg>';
+}
+
+function renderWifiScenario(scenario, container) {
+  const H = id => (scenario.hotspots[id] ? ` hs" data-hs="${id}` : '');
+  if (scenario.context) {
+    const ctx = document.createElement('div');
+    ctx.className = 'mx-context';
+    ctx.innerHTML = `<span class="mx-context-tag">WHAT YOU KNOW</span> ${scenario.context}`;
+    container.appendChild(ctx);
+  }
+  if (scenario.networks) {
+    const rows = scenario.networks.map((n, i) => `
+      <div class="wf-row${H('net-' + i)}">
+        <span class="wf-ssid">${n.ssid}</span>
+        <span class="wf-meta">${n.secure ? icon('lock') : '<span class="wf-open">Open</span>'}${wifiBars(n.bars)}</span>
+      </div>`).join('');
+    const phone = document.createElement('div');
+    phone.className = 'sv-win wf-phone';
+    phone.innerHTML = `
+      <div class="wf-status"><span>9:41</span><span>5G ▮▮▮ 87%</span></div>
+      <div class="wf-title">Wi-Fi</div>
+      <div class="wf-toggle"><span>Wi-Fi</span><span class="wf-sw"></span></div>
+      <div class="wf-sub">AVAILABLE NETWORKS</div>
+      <div class="wf-list">${rows}</div>`;
+    container.appendChild(phone);
+  }
+  if (scenario.portal) {
+    const wrap = document.createElement('div');
+    wrap.className = 'sv-win mx-site';
+    wrap.innerHTML = buildSiteHtml(scenario, scenario.portal);
+    container.appendChild(wrap);
+  }
 }
 
 /* ---------------- CHAT ---------------- */
@@ -1448,7 +1738,7 @@ function submitMissionFindings() {
   const incorrectSelections = AppState.selectedIndicators.filter(ind => !correctIndicators.includes(ind)).length;
   
   // Calculate points with penalty for incorrect selections
-  // Each scenario is worth up to 10 pts (4 missions × 5 scenarios × 10 = 200 max)
+  // Each scenario is worth up to 10 pts (6 missions × 5 scenarios × 10 = 300 max)
   const basePoints = Math.round((foundCorrect / totalCorrect) * 10);
   const penalty = incorrectSelections * 1;
   const points = Math.max(0, basePoints - penalty);
@@ -1481,8 +1771,8 @@ function submitMissionFindings() {
     });
   }
   
-  // Cap score at maximum possible (200)
-  AppState.score = Math.min(AppState.score, 200);
+  // Cap score at the maximum possible
+  AppState.score = Math.min(AppState.score, MAX_SCORE);
 
   // Streak of consecutive perfect scenarios (this session only)
   AppState.streak = (foundCorrect === totalCorrect && incorrectSelections === 0) ? (AppState.streak || 0) + 1 : 0;
@@ -1784,15 +2074,12 @@ Improvement: +${improvement}%
 
 MISSION PROGRESS
 ----------------
-Total Score: ${AppState.score}/200
-Scenarios Completed: ${AppState.scenariosCompleted}/20
+Total Score: ${AppState.score}/${MAX_SCORE}
+Scenarios Completed: ${AppState.scenariosCompleted}/${TOTAL_SCENARIOS}
 
 MISSION DETAILS
 ---------------
-Email Detective: ${AppState.missionProgress[1].completed ? 'Completed' : 'In Progress'}
-Link Hunter: ${AppState.missionProgress[2].completed ? 'Completed' : AppState.missionProgress[2].scenarios.length > 0 ? 'In Progress' : 'Not Started'}
-Fake Website: ${AppState.missionProgress[3].completed ? 'Completed' : AppState.missionProgress[3].scenarios.length > 0 ? 'In Progress' : 'Not Started'}
-Social Engineering: ${AppState.missionProgress[4].completed ? 'Completed' : AppState.missionProgress[4].scenarios.length > 0 ? 'In Progress' : 'Not Started'}
+${Object.keys(Missions).map(id => { const mp = AppState.missionProgress[id]; return Missions[id].name + ': ' + (mp.completed ? 'Completed' : mp.scenarios.length > 0 ? 'In Progress' : 'Not Started'); }).join('\n')}
 
 CURRENT RANK: ${getRank(AppState.score)}
   `;

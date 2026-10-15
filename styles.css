@@ -1133,3 +1133,89 @@ body::before{
   .mx-chat .bubble{ max-width:88%; }
   .scenario-chips{ flex-wrap:wrap; justify-content:flex-end; }
 }
+
+/* ================= POP-UP PHISHING ================= */
+.pp-page{ position:relative; background:#fff; min-height:400px; overflow:hidden; }
+.mx-site .pp-sitehead{ background:#1f2937; color:#fff; padding:12px 18px; font-family:'Roboto',sans-serif; font-weight:800; letter-spacing:1px; font-size:13px; }
+.pp-cookie{ display:flex; justify-content:space-between; align-items:center; gap:10px; background:#f3f4f6; padding:8px 14px; font-size:12px; border-bottom:1px solid #e5e7eb; }
+.pp-cookie b{ background:#1f2937; padding:3px 12px; border-radius:6px; font-size:11px; }
+.mx-site .pp-cookie b{ color:#fff; }
+.pp-article{ padding:16px 18px; }
+.pp-h{ font-size:19px; font-weight:700; line-height:1.25; margin:0 0 10px -6px; padding:3px 6px; color:#111827; }
+.pp-skel{ height:9px; border-radius:5px; background:#e5e7eb; margin:10px 0; }
+.pp-skel.w80{ width:80%; } .pp-skel.w60{ width:60%; }
+.pp-backdrop{ position:absolute; inset:0; background:rgba(15,23,42,.5); pointer-events:none; }
+.pp-pop{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(390px,calc(100% - 28px)); border-radius:14px; overflow:hidden; background:#fff; box-shadow:0 14px 44px rgba(0,0,0,.5); text-align:center; }
+.pp-inner{ padding:16px 18px 16px; display:flex; flex-direction:column; align-items:center; gap:9px; }
+.pp-head{ padding:9px 14px; font-weight:800; font-size:12px; letter-spacing:1px; }
+.mx-site .pp-head{ color:#fff; border-radius:0; }
+.pp-title{ font-size:19px; font-weight:800; line-height:1.2; padding:2px 6px; }
+.pp-body{ font-size:13.5px; line-height:1.45; padding:2px 6px; }
+.pp-timer{ font-size:12.5px; font-weight:700; padding:4px 12px; border-radius:6px; }
+.pp-btns{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.pp-btn{ padding:9px 18px; border-radius:8px; font-weight:800; font-size:13px; background:#e5e7eb; cursor:default; }
+.pp-btn.hs{ cursor:pointer; }
+.pp-small{ font-size:11.5px; color:#6b7280; padding:2px 6px; }
+.pp-source{ font-size:11.5px; color:#6b7280; font-family:ui-monospace,Menlo,Consolas,monospace; padding:2px 6px; }
+.pp-inner .mx-field{ width:100%; text-align:left; }
+
+/* promo (prize) */
+.pp-promo .pp-head{ background:#0b5bd3; }
+.mx-site .pp-promo .pp-title{ color:#c2410c; font-size:21px; }
+.pp-promo .pp-timer{ background:#fee2e2; }
+.mx-site .pp-promo .pp-timer{ color:#b91c1c; }
+.pp-promo .pp-btn.primary{ background:#f59e0b; }
+.mx-site .pp-promo .pp-btn.primary{ color:#3a1d00; }
+.pp-promo{ background:linear-gradient(#fff8e1,#fff 60%); }
+
+/* fake system alert */
+.pp-alert .pp-head{ background:#b91c1c; }
+.pp-alert-ic{ width:40px; height:40px; color:#dc2626; --ic-cut:#fff; }
+.mx-site .pp-alert .pp-title{ color:#b91c1c; }
+.pp-alert .pp-btn.primary{ background:#16a34a; }
+.mx-site .pp-alert .pp-btn.primary{ color:#fff; }
+
+/* browser permission prompt */
+.pp-permission{ left:14px; top:10px; transform:none; width:310px; text-align:left; border-radius:10px; border:1px solid #d0d5dd; }
+.pp-permission .pp-inner{ align-items:flex-start; padding:14px 16px; gap:6px; }
+.pp-permission .pp-title{ font-size:13px; font-weight:600; color:#3c4043; padding:2px 4px; }
+.pp-permission .pp-body{ font-size:14px; font-weight:700; padding:2px 4px; }
+.pp-permission .pp-btns{ align-self:flex-end; margin-top:6px; }
+.pp-permission .pp-btn{ padding:7px 16px; }
+.pp-permission .pp-btn.primary{ background:#1a73e8; }
+.mx-site .pp-permission .pp-btn.primary{ color:#fff; }
+.pp-pagemsg{ padding:90px 20px 40px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.pp-robot{ display:inline-flex; align-items:center; gap:10px; border:1px solid #d0d5dd; background:#f9fafb; border-radius:6px; padding:12px 18px; font-size:14px; }
+.pp-pm{ font-size:17px; font-weight:700; padding:4px 8px; max-width:420px; }
+
+/* modal (telco promo, bank login) */
+.pp-modal .pp-head{ background:#0b6b4f; }
+.pp-modal .pp-title{ font-size:18px; }
+.pp-modal .pp-btn.primary{ background:#0b6b4f; }
+.mx-site .pp-modal .pp-btn.primary{ color:#fff; }
+.pp-modal .pp-timer{ background:#fef3c7; }
+.mx-site .pp-modal .pp-timer{ color:#92400e; }
+
+/* ================= EVIL TWIN (Wi-Fi) ================= */
+.wf-phone{ max-width:380px; margin:0 auto 20px; background:#f2f3f7; border:7px solid #0b0716; border-radius:32px; overflow:hidden; box-shadow:0 6px 0 rgba(0,0,0,.35); font-size:14px; }
+.wf-status{ display:flex; justify-content:space-between; padding:10px 20px 2px; font-size:12px; font-weight:700; }
+.wf-title{ font-size:24px; font-weight:800; padding:8px 20px 12px; }
+.wf-toggle{ display:flex; justify-content:space-between; align-items:center; background:#fff; margin:0 14px 14px; padding:12px 14px; border-radius:14px; font-weight:600; }
+.wf-sw{ position:relative; width:44px; height:25px; border-radius:13px; background:#22c55e; display:block; }
+.wf-sw::after{ content:""; position:absolute; right:3px; top:3px; width:19px; height:19px; border-radius:50%; background:#fff; }
+.wf-sub{ font-size:11px; font-weight:800; letter-spacing:.6px; color:#6b7280; margin:4px 20px 6px; }
+.wf-list{ background:#fff; margin:0 14px 18px; border-radius:14px; padding:4px; }
+.wf-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 12px; border-radius:8px; border-bottom:1px solid #eef0f3; }
+.wf-row:last-child{ border-bottom:none; }
+.wf-ssid{ font-weight:600; word-break:break-all; padding-right:10px; }
+.wf-meta{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.wf-meta .ic{ font-size:15px; --ic-cut:#fff; }
+.wf-open{ font-size:11px; font-weight:600; color:#6b7280; }
+.wf-bars{ width:20px; height:16px; }
+
+#mission-5 .mission-card-icon{ color:#FF9638; }
+#mission-6 .mission-card-icon{ color:#4DE3D1; }
+@media (max-width:720px){
+  .pp-permission{ width:calc(100% - 28px); }
+  .pp-pagemsg{ padding-top:110px; }
+}

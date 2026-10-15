@@ -25,9 +25,17 @@ function handleLogin() {
     window.AppState.currentUser.preAssessmentCompleted = user.preAssessmentCompleted || false;
     window.AppState.currentUser.postAssessmentCompleted = user.postAssessmentCompleted || false;
 
+    // Make sure progress exists for every mission (older accounts only have missions 1-4)
+    const missionTotal = typeof MISSION_COUNT !== 'undefined' ? MISSION_COUNT : 6;
+    for (let i = 1; i <= missionTotal; i++) {
+      if (!window.AppState.missionProgress[i]) {
+        window.AppState.missionProgress[i] = { completed: false, scenarios: [] };
+      }
+    }
+
     // Calculate unique scenarios completed from mission progress
     let uniqueScenariosCompleted = 0;
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= missionTotal; i++) {
       uniqueScenariosCompleted += window.AppState.missionProgress[i].scenarios.length;
     }
     window.AppState.scenariosCompleted = uniqueScenariosCompleted;
