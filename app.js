@@ -1,3 +1,10 @@
+// ── Server settings ───────────────────────────────────────────
+// true  = accounts and progress are saved in MySQL through the PHP files.
+//         Open the game from http://localhost/phishquest/ (XAMPP: Apache + MySQL running).
+// false = old behaviour: everything stays in this browser (LocalStorage).
+const USE_SERVER = true;
+const API_BASE = '';   // the PHP files sit in the same folder as index.html
+
 const RANK_TIERS={'NOVICE HUNTER':1,'JUNIOR AGENT':2,'SKILLED OPERATIVE':3,'SENIOR AGENT':4,'MASTER HUNTER':5};function rankTier(n){return RANK_TIERS[n]||1;}
 function icon(n,c){return '<svg class="ic'+(c?' '+c:'')+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>';}
 // Application State (shared with auth.js)
@@ -877,28 +884,127 @@ function renderAssessmentVisual(containerId, type) {
 // handleLogin(), handleRegister(), handleLogout() are now in auth.js
 
 // Save User Progress (used by application logic)
-function saveUserProgress() {
-  if (AppState.currentUser) {
-    const userIndex = AppState.users.findIndex(u => u.username === AppState.currentUser.username);
-    if (userIndex !== -1) {
-      // Calculate unique scenarios completed across all missions
-      let uniqueScenariosCompleted = 0;
-      for (let i = 1; i <= MISSION_COUNT; i++) {
-        uniqueScenariosCompleted += AppState.missionProgress[i].scenarios.length;
-      }
+// Keeps every mission 1..MISSION_COUNT present, whatever the server sent back
+function normalizeProgress(mp) {
+  const out = {};
+  for (let i = 1; i <= MISSION_COUNT; i++) {
+    const m = mp && mp[i];
+    out[i] = { completed: !!(m && m.completed), scenarios: (m && Array.isArray(m.scenarios)) ? m.scenarios : [] };
+  }
+  return out;
+}
 
-      AppState.users[userIndex] = {
-        ...AppState.currentUser,
-        score: AppState.score,
-        scenariosCompleted: uniqueScenariosCompleted,
-        missionProgress: AppState.missionProgress,
-        preAssessmentScore: AppState.preAssessmentScore,
-        postAssessmentScore: AppState.postAssessmentScore,
-        preAssessmentCompleted: AppState.currentUser.preAssessmentCompleted || false,
-        postAssessmentCompleted: AppState.currentUser.postAssessmentCompleted || false
-      };
-      localStorage.setItem('phishquest_users', JSON.stringify(AppState.users));
+// POST some JSON to a PHP file and return { ok, status, data }
+async function apiPost(file, payload) {
+  const res = await fetch(API_BASE + file, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify(payload || {})
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* not JSON (PHP error page, 404...) */ }
+  return { ok: res.ok, status: res.status, data };
+}
+
+function serverDownMessage() {
+  return location.protocol === 'file:'
+    ? 'Open the game from http://localhost/phishquest/ (not by double-clicking index.html).'
+    : 'Cannot reach the server. Check that Apache and MySQL are running in XAMPP.';
+}
+
+function serverProblemMessage(result, file) {
+  if (result && result.data && result.data.message) return result.data.message;
+  if (result && result.status === 404) return 'Cannot find ' + file + '. Put the PHP files in the same folder as index.html.';
+  return 'Server error. Check that MySQL is running and the "phishquest" database exists.';
+}
+
+function showSaveWarning(message) {
+  let el = document.getElementById('save-warning');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-warning';
+    el.className = 'save-warning';
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.style.display = 'block';
+  clearTimeout(showSaveWarning._t);
+  showSaveWarning._t = setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+// Saves are queued so an older save can never overwrite a newer one
+let saveChain = Promise.resolve();
+
+function sendProgressToServer(payload) {
+  saveChain = saveChain.then(async () => {
+    try {
+      const result = await apiPost('save-progress.php', payload);
+      if (!result.ok || !result.data || !result.data.success) {
+        showSaveWarning(result.status === 401
+          ? 'Your session expired, so progress was not saved. Please log in again.'
+          : 'Progress was not saved to the database. ' + serverProblemMessage(result, 'save-progress.php'));
+      }
+    } catch (e) {
+      showSaveWarning('Progress was not saved. ' + serverDownMessage());
     }
+  });
+}
+
+// Saves the pre/post result (as percentages, like the Results screen) into the assessment_results table
+function saveAssessmentResult() {
+  if (!USE_SERVER || !AppState.currentUser) return;
+  const total = AssessmentQuestions.length;
+  const payload = {
+    preAssessmentPercent: Math.round((AppState.preAssessmentScore / total) * 100),
+    postAssessmentPercent: Math.round((AppState.postAssessmentScore / total) * 100)
+  };
+  saveChain = saveChain.then(async () => {
+    try {
+      const result = await apiPost('save-assessment.php', payload);
+      if (!result.ok || !result.data || !result.data.success) {
+        showSaveWarning('Your result was not saved to the database. ' + serverProblemMessage(result, 'save-assessment.php'));
+      }
+    } catch (e) {
+      showSaveWarning('Your result was not saved. ' + serverDownMessage());
+    }
+  });
+}
+
+function serverLogout() {
+  saveChain = saveChain.then(() => fetch(API_BASE + 'logout.php', { method: 'POST', credentials: 'same-origin' }).catch(() => {}));
+}
+
+function saveUserProgress() {
+  if (!AppState.currentUser) return;
+
+  // Calculate unique scenarios completed across all missions
+  let uniqueScenariosCompleted = 0;
+  for (let i = 1; i <= MISSION_COUNT; i++) {
+    uniqueScenariosCompleted += AppState.missionProgress[i].scenarios.length;
+  }
+
+  const snapshot = {
+    score: AppState.score,
+    scenariosCompleted: uniqueScenariosCompleted,
+    missionProgress: AppState.missionProgress,
+    preAssessmentScore: AppState.preAssessmentScore,
+    postAssessmentScore: AppState.postAssessmentScore,
+    preAssessmentCompleted: AppState.currentUser.preAssessmentCompleted || false,
+    postAssessmentCompleted: AppState.currentUser.postAssessmentCompleted || false
+  };
+
+  if (USE_SERVER) {
+    // MySQL via save-progress.php (JSON.stringify copies the data now, so later changes can't leak in)
+    sendProgressToServer(JSON.parse(JSON.stringify(snapshot)));
+    return;
+  }
+
+  // Old LocalStorage behaviour
+  const userIndex = AppState.users.findIndex(u => u.username === AppState.currentUser.username);
+  if (userIndex !== -1) {
+    AppState.users[userIndex] = { ...AppState.currentUser, ...snapshot };
+    localStorage.setItem('phishquest_users', JSON.stringify(AppState.users));
   }
 }
 
@@ -1840,6 +1946,8 @@ function submitMissionFindings() {
 
   // Streak of consecutive perfect scenarios (this session only)
   AppState.streak = (foundCorrect === totalCorrect && incorrectSelections === 0) ? (AppState.streak || 0) + 1 : 0;
+
+  saveUserProgress();
   
   // Apply visual feedback to show correct/incorrect answers
   applyVisualFeedback(scenario, correctIndicators);
@@ -2098,6 +2206,7 @@ function nextPostAssessment() {
     // Post-assessment complete, mark as completed and show results
     AppState.currentUser.postAssessmentCompleted = true;
     saveUserProgress();
+    saveAssessmentResult();
     showResults();
   }
 }
