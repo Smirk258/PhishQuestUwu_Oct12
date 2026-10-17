@@ -1231,6 +1231,7 @@ body::before{
 .mission-pct.good{ color:var(--lime); } .mission-pct.mid{ color:var(--yellow); } .mission-pct.low{ color:var(--coral); }
 
 .save-warning{ display:none; position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:999; max-width:90%; background:#3a1224; border:2px solid var(--coral); color:#FFC2CB; padding:10px 16px; border-radius:12px; font-size:13px; font-weight:600; text-align:center; box-shadow:0 6px 0 rgba(0,0,0,.35); }
+<<<<<<< HEAD
 
 /* ================= MOBILE LAYOUT (phones) ================= */
 @media (max-width:720px){
@@ -1313,3 +1314,5 @@ body::before{
   .stat-card-value{ font-size:20px; }
   .stat-card-label{ font-size:9px; letter-spacing:.3px; }
 }
+=======
+>>>>>>> 7e8a47f72ad08b90c9516630b6f5fee97bee6762
