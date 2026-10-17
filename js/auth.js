@@ -1,69 +1,76 @@
 // Authentication Module for PhishQuest
+// Works with login.php, Register.php, save-progress.php and logout.php when USE_SERVER is true (see app.js).
 
-// Application State is defined in app.js and loaded before this file
-// AppState is available globally via window.AppState
+// Sets up the game state for a logged-in user (same for server accounts and local accounts)
+function startSession(user) {
+  const A = window.AppState;
+  A.currentUser = user;
+  A.score = user.score || 0;
+  A.missionProgress = normalizeProgress(user.missionProgress);
+  A.preAssessmentScore = user.preAssessmentScore || 0;
+  A.postAssessmentScore = user.postAssessmentScore || 0;
+  A.currentUser.preAssessmentCompleted = !!user.preAssessmentCompleted;
+  A.currentUser.postAssessmentCompleted = !!user.postAssessmentCompleted;
+  A.streak = 0;
+
+  // Calculate unique scenarios completed from mission progress
+  let uniqueScenariosCompleted = 0;
+  for (let i = 1; i <= MISSION_COUNT; i++) {
+    uniqueScenariosCompleted += A.missionProgress[i].scenarios.length;
+  }
+  A.scenariosCompleted = uniqueScenariosCompleted;
+
+  if (typeof updateAgentInfo === 'function') updateAgentInfo();
+
+  // Check if user has already completed pre-assessment
+  if (user.preAssessmentCompleted) {
+    showScreen('mission-hub');
+  } else {
+    showScreen('pre-assessment');
+    if (typeof initializePreAssessment === 'function') initializePreAssessment();
+  }
+}
+
+function setBusy(formId, busy) {
+  const btn = document.querySelector('#' + formId + ' .auth-btn');
+  if (btn) btn.disabled = busy;
+}
 
 // Authentication Functions
-function handleLogin() {
+async function handleLogin() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value;
   const errorElement = document.getElementById('login-error');
+  errorElement.textContent = '';
 
   if (!username || !password) {
     errorElement.textContent = 'Please enter both Student ID and password';
     return;
   }
 
-  const user = window.AppState.users.find(u => u.username === username && u.password === password);
-
-  if (user) {
-    window.AppState.currentUser = user;
-    window.AppState.score = user.score || 0;
-    window.AppState.missionProgress = user.missionProgress || JSON.parse(JSON.stringify(window.AppState.missionProgress));
-    window.AppState.preAssessmentScore = user.preAssessmentScore || 0;
-    window.AppState.postAssessmentScore = user.postAssessmentScore || 0;
-    window.AppState.currentUser.preAssessmentCompleted = user.preAssessmentCompleted || false;
-    window.AppState.currentUser.postAssessmentCompleted = user.postAssessmentCompleted || false;
-
-    // Make sure progress exists for every mission (older accounts only have missions 1-4)
-    const missionTotal = typeof MISSION_COUNT !== 'undefined' ? MISSION_COUNT : 6;
-    for (let i = 1; i <= missionTotal; i++) {
-      if (!window.AppState.missionProgress[i]) {
-        window.AppState.missionProgress[i] = { completed: false, scenarios: [] };
+  if (USE_SERVER) {
+    setBusy('login-form', true);
+    try {
+      const result = await apiPost('login.php', { username, password });
+      if (result.ok && result.data && result.data.success) {
+        startSession(result.data.user);
+      } else {
+        errorElement.textContent = serverProblemMessage(result, 'login.php');
       }
+    } catch (e) {
+      errorElement.textContent = serverDownMessage();
     }
-
-    // Calculate unique scenarios completed from mission progress
-    let uniqueScenariosCompleted = 0;
-    for (let i = 1; i <= missionTotal; i++) {
-      uniqueScenariosCompleted += window.AppState.missionProgress[i].scenarios.length;
-    }
-    window.AppState.scenariosCompleted = uniqueScenariosCompleted;
-
-    // Call updateAgentInfo if it exists in app.js
-    if (typeof updateAgentInfo === 'function') {
-      updateAgentInfo();
-    }
-
-    // Check if user has already completed pre-assessment
-    if (user.preAssessmentCompleted) {
-      if (typeof showScreen === 'function') {
-        showScreen('mission-hub');
-      }
-    } else {
-      if (typeof showScreen === 'function') {
-        showScreen('pre-assessment');
-      }
-      if (typeof initializePreAssessment === 'function') {
-        initializePreAssessment();
-      }
-    }
-  } else {
-    errorElement.textContent = 'Invalid Student ID or password';
+    setBusy('login-form', false);
+    return;
   }
+
+  // Local (LocalStorage) accounts
+  const user = window.AppState.users.find(u => u.username === username && u.password === password);
+  if (user) startSession(user);
+  else errorElement.textContent = 'Invalid Student ID or password';
 }
 
-function handleRegister() {
+async function handleRegister() {
   const firstname = document.getElementById('register-firstname').value.trim();
   const lastname = document.getElementById('register-lastname').value.trim();
   const username = document.getElementById('register-username').value.trim();
@@ -71,6 +78,7 @@ function handleRegister() {
   const password = document.getElementById('register-password').value;
   const confirm = document.getElementById('register-confirm').value;
   const errorElement = document.getElementById('register-error');
+  errorElement.textContent = '';
 
   if (!firstname || !lastname || !username || !email || !password || !confirm) {
     errorElement.textContent = 'Please fill in all fields';
@@ -82,25 +90,43 @@ function handleRegister() {
     return;
   }
 
+  if (password.length < 8) {
+    errorElement.textContent = 'Password must be at least 8 characters';
+    return;
+  }
+
   if (password !== confirm) {
     errorElement.textContent = 'Passwords do not match';
     return;
   }
 
+  if (USE_SERVER) {
+    setBusy('register-form', true);
+    try {
+      const result = await apiPost('Register.php', { firstname, lastname, username, email, password });
+      if (result.ok && result.data && result.data.success) {
+        startSession(result.data.user);
+      } else {
+        errorElement.textContent = serverProblemMessage(result, 'Register.php');
+      }
+    } catch (e) {
+      errorElement.textContent = serverDownMessage();
+    }
+    setBusy('register-form', false);
+    return;
+  }
+
+  // Local (LocalStorage) accounts
   if (window.AppState.users.find(u => u.username === username)) {
     errorElement.textContent = 'Username already exists';
     return;
   }
 
   const newUser = {
-    firstname,
-    lastname,
-    username,
-    email,
-    password,
+    firstname, lastname, username, email, password,
     score: 0,
     scenariosCompleted: 0,
-    missionProgress: JSON.parse(JSON.stringify(window.AppState.missionProgress)),
+    missionProgress: normalizeProgress({}),
     preAssessmentScore: 0,
     postAssessmentScore: 0,
     preAssessmentCompleted: false,
@@ -110,25 +136,15 @@ function handleRegister() {
 
   window.AppState.users.push(newUser);
   localStorage.setItem('phishquest_users', JSON.stringify(window.AppState.users));
-
-  window.AppState.currentUser = newUser;
-
-  if (typeof updateAgentInfo === 'function') {
-    updateAgentInfo();
-  }
-
-  if (typeof showScreen === 'function') {
-    showScreen('pre-assessment');
-  }
-
-  if (typeof initializePreAssessment === 'function') {
-    initializePreAssessment();
-  }
+  startSession(newUser);
 }
 
 function handleLogout() {
   if (typeof saveUserProgress === 'function') {
     saveUserProgress();
+  }
+  if (USE_SERVER) {
+    serverLogout();
   }
 
   window.AppState.currentUser = null;
@@ -148,6 +164,10 @@ function handleLogout() {
   document.getElementById('register-confirm').value = '';
   document.getElementById('login-error').textContent = '';
   document.getElementById('register-error').textContent = '';
+
+  // Always come back to the Login tab
+  const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+  if (loginTab) loginTab.click();
 
   if (typeof showScreen === 'function') {
     showScreen('login');
