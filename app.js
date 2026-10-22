@@ -1008,6 +1008,75 @@ function saveUserProgress() {
   }
 }
 
+// ── Remember which screen the player is on, so a refresh puts them back ──
+const NAV_KEY = 'phishquest_nav';
+
+function saveNavState(screenId) {
+  try {
+    if (screenId === 'login' || !AppState.currentUser) {
+      sessionStorage.removeItem(NAV_KEY);
+      return;
+    }
+    sessionStorage.setItem(NAV_KEY, JSON.stringify({
+      user: AppState.currentUser.username,
+      screen: screenId,
+      mission: AppState.currentMission,
+      scenario: AppState.currentScenario
+    }));
+  } catch (e) { /* storage blocked: ignore */ }
+}
+
+function readNavState(username) {
+  try {
+    const nav = JSON.parse(sessionStorage.getItem(NAV_KEY) || 'null');
+    return (nav && nav.user === username) ? nav : null;
+  } catch (e) { return null; }
+}
+
+// Puts the player back on the screen they were on before the refresh
+function resumeNavState(nav) {
+  if (!nav) return;
+  const mid = nav.mission;
+  const hasMission = mid && Missions[mid];
+
+  switch (nav.screen) {
+    case 'mission-gameplay':
+      if (hasMission) {
+        AppState.currentMission = mid;
+        AppState.currentScenario = nav.scenario || 0;
+        showMissionScenario();
+      }
+      break;
+    case 'feedback':
+      // The answer was already saved, so continue with the next scenario
+      if (hasMission) {
+        AppState.currentMission = mid;
+        const next = (nav.scenario || 0) + 1;
+        if (next < Missions[mid].scenarios.length) {
+          AppState.currentScenario = next;
+          showMissionScenario();
+        } else {
+          completeMission();
+        }
+      }
+      break;
+    case 'mission-debrief':
+      if (hasMission) {
+        AppState.currentMission = mid;
+        completeMission();
+      }
+      break;
+    case 'post-assessment':
+      startPostAssessment();
+      break;
+    case 'results':
+      showResults();
+      break;
+    default:
+      break; // mission-hub etc. already shown by startSession
+  }
+}
+
 // Screen Navigation
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(screen => {
@@ -1019,6 +1088,8 @@ function showScreen(screenId) {
     targetScreen.classList.add('active');
     AppState.currentScreen = screenId;
   }
+
+  saveNavState(screenId);
   
   if (screenId === 'mission-hub') {
     updateMissionHub();
@@ -2266,9 +2337,26 @@ CURRENT RANK: ${getRank(AppState.score)}
   URL.revokeObjectURL(url);
 }
 
+// Restore the logged-in user after a refresh
+async function restoreSession() {
+  if (USE_SERVER) {
+    try {
+      const res = await fetch(API_BASE + 'session.php', { credentials: 'same-origin' });
+      const data = await res.json();
+      if (data && data.success && data.user) {
+        const nav = readNavState(data.user.username);   // read before startSession overwrites it
+        startSession(data.user);                         // mission hub or pre-assessment
+        if (data.user.preAssessmentCompleted) resumeNavState(nav);
+        return;
+      }
+    } catch (e) { /* server unreachable: fall through to login */ }
+  }
+  showScreen('login');
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  showScreen('login');
+  restoreSession();
 
   // Add email validation on blur for registration
   const registerEmail = document.getElementById('register-email');
