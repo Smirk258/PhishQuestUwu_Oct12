@@ -85,6 +85,16 @@ async function handleRegister() {
     return;
   }
 
+  if (!NAME_PATTERN.test(firstname) || !NAME_PATTERN.test(lastname)) {
+    errorElement.textContent = 'Names can only contain letters (no numbers)';
+    return;
+  }
+
+  if (!/^\d+$/.test(username)) {
+    errorElement.textContent = 'Student ID must contain numbers only';
+    return;
+  }
+
   if (!email.toLowerCase().endsWith('@gmail.com')) {
     errorElement.textContent = 'Please use a Gmail address to sign in';
     return;
@@ -164,6 +174,7 @@ function handleLogout() {
   document.getElementById('register-confirm').value = '';
   document.getElementById('login-error').textContent = '';
   document.getElementById('register-error').textContent = '';
+  resetPasswordToggles();
 
   // Always come back to the Login tab
   const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
@@ -192,7 +203,77 @@ function initAuthTabs() {
   });
 }
 
+// ---------- Logout confirmation ----------
+function confirmLogout() {
+  const box = document.getElementById('logout-confirm');
+  if (box) box.classList.add('open');
+  else handleLogout();
+}
+
+function closeLogoutConfirm() {
+  const box = document.getElementById('logout-confirm');
+  if (box) box.classList.remove('open');
+}
+
+function confirmLogoutYes() {
+  closeLogoutConfirm();
+  handleLogout();
+}
+
+// ---------- Show / hide password (eye button) ----------
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  const use = btn.querySelector('use');
+  if (use) use.setAttribute('href', show ? '#i-eye-off' : '#i-eye');
+}
+
+function resetPasswordToggles() {
+  document.querySelectorAll('.pw-toggle').forEach(btn => {
+    const input = btn.parentElement.querySelector('input');
+    if (input) input.type = 'password';
+    btn.setAttribute('aria-label', 'Show password');
+    const use = btn.querySelector('use');
+    if (use) use.setAttribute('href', '#i-eye');
+  });
+}
+
+// ---------- Registration input rules ----------
+// Names: letters only (plus space, hyphen, apostrophe, period). Student ID: digits only.
+const NAME_PATTERN = /^[\p{L}][\p{L}\s'.-]*$/u;
+
+function filterInput(id, badChars) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const hint = document.getElementById(id + '-hint');
+  el.addEventListener('input', () => {
+    const cleaned = el.value.replace(badChars, '');
+    const rejected = cleaned !== el.value;
+    el.value = cleaned;
+    if (hint) {
+      hint.classList.toggle('warn', rejected);
+      if (!hint.classList.contains('always')) hint.classList.toggle('show', rejected);
+    }
+  });
+}
+
+function initRegisterInputRules() {
+  filterInput('register-firstname', /[^\p{L}\s'.-]/gu);
+  filterInput('register-lastname', /[^\p{L}\s'.-]/gu);
+  filterInput('register-username', /\D/g);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLogoutConfirm();
+  });
+  const overlay = document.getElementById('logout-confirm');
+  if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLogoutConfirm(); });
+}
+
 // Initialize authentication when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   initAuthTabs();
+  initRegisterInputRules();
 });

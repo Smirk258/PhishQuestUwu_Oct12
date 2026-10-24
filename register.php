@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 require_once __DIR__ . "/db.php";
@@ -47,6 +46,17 @@ if (
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) ||
     !str_ends_with($email, "@gmail.com")) {
     respond(400, ["success" => false, "message" => "Please use a valid Gmail address."]);
+}
+
+if (
+    !preg_match('/^[\p{L}][\p{L}\s\'.\-]*$/u', $firstName) ||
+    !preg_match('/^[\p{L}][\p{L}\s\'.\-]*$/u', $lastName)
+) {
+    respond(400, ["success" => false, "message" => "Names can only contain letters."]);
+}
+
+if (!ctype_digit($username)) {
+    respond(400, ["success" => false, "message" => "Student ID must contain numbers only."]);
 }
 
 if (strlen($password) < 8 || strlen($password) > 72) {

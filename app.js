@@ -2101,7 +2101,7 @@ function showFeedback(points, found, total, incorrect, scenario) {
   }
 
   document.getElementById('feedback-points').textContent = points > 0 ? `+${points} points` : `${points} points`;
-  document.getElementById('feedback-summary').textContent = `${found} of ${total} indicators found${incorrect > 0 ? `, ${incorrect} incorrect selection${incorrect > 1 ? 's' : ''}` : ''}.`;
+  document.getElementById('feedback-summary').innerHTML = `<span class="found-num${found > 0 ? '' : ' none'}">${found}</span> of ${total} indicators found${incorrect > 0 ? `, ${incorrect} incorrect selection${incorrect > 1 ? 's' : ''}` : ''}.`;
 
   const feedbackItems = document.getElementById('feedback-items');
   feedbackItems.innerHTML = '';
