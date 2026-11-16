@@ -959,7 +959,8 @@ h2 .ic-inline{margin-right:0;margin-left:.15em;color:var(--lime)}
 @keyframes svBlink{ 50%{ opacity:.35; } }
 
 @media (max-width:900px){
-  .assessment-left,.assessment-right{ flex:none; }
+  .assessment-content{ flex-direction:column; }
+  .assessment-left,.assessment-right{ flex:none; width:100%; }
   .sv-win .sv-scam-title{ font-size:16px; }
 }
 
@@ -1074,12 +1075,12 @@ body::before{
 .mx-tab{ background:#fff; padding:6px 16px; border-radius:8px 8px 0 0; font-size:12px; font-weight:600; }
 .mx-toolbar{ display:flex; align-items:center; gap:10px; background:#fff; padding:7px 12px; border-bottom:1px solid #e3e6eb; }
 .mx-nav i{ font-style:normal; color:#6b7280; margin-right:9px; font-size:17px; }
-.mx-addr{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:#f1f3f4; border-radius:999px; padding:4px 10px; }
+.mx-addr{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:#f1f3f4; border-radius:18px; padding:4px 10px; }
 .mx-lock{ display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; --ic-cut:#fff; }
 .mx-lock .ic{ width:12px; height:12px; }
 .mx-lock.ok{ background:#e6f4ea; color:#188038; }
 .mx-lock.bad{ background:#fce8e6; color:#c5221f; }
-.mx-urltext{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:2px 6px; }
+.mx-urltext{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; overflow:visible; white-space:normal; overflow-wrap:anywhere; word-break:break-all; line-height:1.3; padding:2px 6px; }
 .mx-site .u-dim{ color:#80868b; }
 .mx-site .u-dom{ color:#111827; font-weight:800; }
 .mx-page{ background:#f3f4f8; padding-bottom:14px; }
@@ -1135,7 +1136,8 @@ body::before{
 }
 
 /* ================= POP-UP PHISHING ================= */
-.pp-page{ position:relative; background:#fff; min-height:400px; overflow:hidden; }
+.pp-page{ position:relative; display:grid; background:#fff; min-height:400px; overflow:hidden; }
+.pp-bg{ grid-area:1/1; min-width:0; }
 .mx-site .pp-sitehead{ background:#1f2937; color:#fff; padding:12px 18px; font-family:'Roboto',sans-serif; font-weight:800; letter-spacing:1px; font-size:13px; }
 .pp-cookie{ display:flex; justify-content:space-between; align-items:center; gap:10px; background:#f3f4f6; padding:8px 14px; font-size:12px; border-bottom:1px solid #e5e7eb; }
 .pp-cookie b{ background:#1f2937; padding:3px 12px; border-radius:6px; font-size:11px; }
@@ -1144,8 +1146,8 @@ body::before{
 .pp-h{ font-size:19px; font-weight:700; line-height:1.25; margin:0 0 10px -6px; padding:3px 6px; color:#111827; }
 .pp-skel{ height:9px; border-radius:5px; background:#e5e7eb; margin:10px 0; }
 .pp-skel.w80{ width:80%; } .pp-skel.w60{ width:60%; }
-.pp-backdrop{ position:absolute; inset:0; background:rgba(15,23,42,.5); pointer-events:none; }
-.pp-pop{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(390px,calc(100% - 28px)); border-radius:14px; overflow:hidden; background:#fff; box-shadow:0 14px 44px rgba(0,0,0,.5); text-align:center; }
+.pp-backdrop{ grid-area:1/1; background:rgba(15,23,42,.5); pointer-events:none; }
+.pp-pop{ position:relative; grid-area:1/1; justify-self:center; align-self:center; margin:22px 0; width:min(390px,calc(100% - 28px)); border-radius:14px; overflow:hidden; background:#fff; box-shadow:0 14px 44px rgba(0,0,0,.5); text-align:center; }
 .pp-inner{ padding:16px 18px 16px; display:flex; flex-direction:column; align-items:center; gap:9px; }
 .pp-head{ padding:9px 14px; font-weight:800; font-size:12px; letter-spacing:1px; }
 .mx-site .pp-head{ color:#fff; border-radius:0; }
@@ -1176,7 +1178,7 @@ body::before{
 .mx-site .pp-alert .pp-btn.primary{ color:#fff; }
 
 /* browser permission prompt */
-.pp-permission{ left:14px; top:10px; transform:none; width:310px; text-align:left; border-radius:10px; border:1px solid #d0d5dd; }
+.pp-permission{ justify-self:start; align-self:start; margin:10px 14px; width:310px; max-width:calc(100% - 28px); text-align:left; border-radius:10px; border:1px solid #d0d5dd; }
 .pp-permission .pp-inner{ align-items:flex-start; padding:14px 16px; gap:6px; }
 .pp-permission .pp-title{ font-size:13px; font-weight:600; color:#3c4043; padding:2px 4px; }
 .pp-permission .pp-body{ font-size:14px; font-weight:700; padding:2px 4px; }
@@ -1231,7 +1233,6 @@ body::before{
 .mission-pct.good{ color:var(--lime); } .mission-pct.mid{ color:var(--yellow); } .mission-pct.low{ color:var(--coral); }
 
 .save-warning{ display:none; position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:999; max-width:90%; background:#3a1224; border:2px solid var(--coral); color:#FFC2CB; padding:10px 16px; border-radius:12px; font-size:13px; font-weight:600; text-align:center; box-shadow:0 6px 0 rgba(0,0,0,.35); }
-<<<<<<< HEAD
 
 /* ================= MOBILE LAYOUT (phones) ================= */
 @media (max-width:720px){
@@ -1314,13 +1315,10 @@ body::before{
   .stat-card-value{ font-size:20px; }
   .stat-card-label{ font-size:9px; letter-spacing:.3px; }
 }
-=======
->>>>>>> 7e8a47f72ad08b90c9516630b6f5fee97bee6762
 
 /* ===== Registration hints, password eye, logout confirm, instructions box, feedback number ===== */
-.field-hint{ display:none; }
-.field-hint.show, .field-hint.always{ display:block; }
-.field-hint.warn{ color:var(--coral); font-weight:700; }
+.field-hint[hidden]{ display:none; }
+.field-hint{ color:var(--coral); font-weight:700; }
 
 .auth-input-row .pw-toggle{
   --ic-cut:#241744;
@@ -1358,3 +1356,7 @@ body::before{
 
 .found-num{ color:var(--lime); font-weight:800; font-size:1.25em; }
 .found-num.none{ color:var(--coral); }
+
+/* hide the browser's built-in password eye (Edge/Chrome) - we have our own */
+.auth-input-row input::-ms-reveal, .auth-input-row input::-ms-clear{ display:none; }
+.auth-input-row input::-webkit-credentials-auto-fill-button{ visibility:hidden; display:none !important; pointer-events:none; }

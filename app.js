@@ -1836,9 +1836,11 @@ function renderPopupScenario(scenario, container) {
   wrap.innerHTML = `
     ${browserChrome(scenario, c)}
     <div class="pp-page">
-      <div class="pp-sitehead">${c.site.name}</div>
-      ${cookie}
-      ${article}
+      <div class="pp-bg">
+        <div class="pp-sitehead">${c.site.name}</div>
+        ${cookie}
+        ${article}
+      </div>
       <div class="pp-backdrop"></div>
       <div class="pp-pop pp-${p.style}">
         ${head}

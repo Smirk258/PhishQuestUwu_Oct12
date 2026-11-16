@@ -253,10 +253,8 @@ function filterInput(id, badChars) {
     const cleaned = el.value.replace(badChars, '');
     const rejected = cleaned !== el.value;
     el.value = cleaned;
-    if (hint) {
-      hint.classList.toggle('warn', rejected);
-      if (!hint.classList.contains('always')) hint.classList.toggle('show', rejected);
-    }
+    // The hint stays hidden unless a wrong character was just typed
+    if (hint) hint.hidden = !rejected;
   });
 }
 
